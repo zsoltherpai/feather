@@ -1,15 +1,15 @@
 ####About Feather####
-Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's a good fit for projects needing the basics done simply / efficiently rather than needing a kitchen sink of features.
+Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's aimed for projects needing the basics done simply rather than a kitchen sink of features.
 
 #####Footprint, performance######
 Comparing Feather to [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library itself weighs less than 3% of Guice
 - no external dependencies
-- based on a crude benchmark (atm) - bootstraps ~3x faster, instantiates dependencies ~30% faster
+- based on a (atm) crude benchmark  - bootstraps ~3x faster, instantiates dependencies ~30% faster
 Note: not to downplay the mighty Guice at all, Guice has a much larger set of features
 
 #####How it works#####
-Feather is based on reflection. It does not scan the classpath / nor does anything expensive or fishy. In a typical scenario it inspects the constructor of the requested dependency (happens only once) and calls it with the necessary dependencies (a recursion).
+Feather is based on reflection. In a typical scenario it inspects the constructor of the requested dependency (happens only once) and calls it with the necessary dependencies (a recursion). No classpath scanning, proxying or anything costly involved.
 
 #####Usage - code examples#####
 ######Create the injector (Feather)######
@@ -63,7 +63,7 @@ public class MyModule {
     // ... other @Provides methods
 }
 ```
-Note: supports @Singleton on @Provides annotated methods
+Note: Feather supports @Singleton on @Provides annotated methods too
 Initializing feather with any number modules:
 ```java
 Feather feather = Feather.with(new MyModule());
@@ -104,7 +104,7 @@ public class A {
 ```
 Note that the @Provides method serves just as a declaration, a binding here, no manual instantiation or argument passing needed
 ######Qualifiers######
-Feather supports Qualifiers
+Feather supports Qualifiers (Named or custom)
 ```java
 public class MyModule {
     @Provides
