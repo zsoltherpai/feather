@@ -74,10 +74,10 @@ public class Feather {
     @SuppressWarnings("unchecked")
     private <T> Provider<T> provider(final Key<T> key, Set<Key> depChain) {
         if (!providers.containsKey(key)) {
-            circularCheck(key, depChain);
-            Set<Key> dependencyChain = depChain != null ? depChain : new LinkedHashSet<Key>();
             synchronized (providers) {
                 if (!providers.containsKey(key)) {
+                    circularCheck(key, depChain);
+                    Set<Key> dependencyChain = depChain != null ? depChain : new LinkedHashSet<Key>();
                     final Constructor constructor = Inspection.constructor(key);
                     final List<Provider<?>> paramProviders = providersForParams(key, constructor.getParameters(), append(dependencyChain, key));
                     providers.put(key, singletonProvider(key, (Singleton) key.type.getAnnotation(Singleton.class), new Provider() {
