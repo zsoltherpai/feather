@@ -66,19 +66,5 @@ public class Key<T> {
         return type.getName() + suffix;
     }
 
-    static String chainString(Set<Key> chain, Key lastKey) {
-        List<Key> keys = new ArrayList<>(chain);
-        keys.add(lastKey);
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean first = true;
-        for (Key key : keys) {
-            if (first) {
-                stringBuilder.append(key.toString());
-                first = false;
-            } else {
-                stringBuilder.append(" -> ").append(key.toString());
-            }
-        }
-        return stringBuilder.toString();
-    }
+
 }

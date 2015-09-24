@@ -108,7 +108,7 @@ public class Feather {
 
     private void circularCheck(Key key, Set<Key> depChain) {
         if (depChain != null && depChain.contains(key)) {
-            throw new FeatherException(String.format("Circular dependency: %s", Key.chainString(depChain, key)));
+            throw new FeatherException(String.format("Circular dependency: %s", chainString(depChain, key)));
         }
     }
 
@@ -186,5 +186,21 @@ public class Feather {
         LinkedHashSet<T> appended = new LinkedHashSet<>(set);
         appended.add(newItem);
         return appended;
+    }
+
+    static String chainString(Set<Key> chain, Key lastKey) {
+        List<Key> keys = new ArrayList<>(chain);
+        keys.add(lastKey);
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean first = true;
+        for (Key key : keys) {
+            if (first) {
+                stringBuilder.append(key.toString());
+                first = false;
+            } else {
+                stringBuilder.append(" -> ").append(key.toString());
+            }
+        }
+        return stringBuilder.toString();
     }
 }
