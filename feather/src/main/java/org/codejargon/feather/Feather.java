@@ -75,7 +75,6 @@ public class Feather {
         if (!providers.containsKey(key)) {
             synchronized (providers) {
                 if (!providers.containsKey(key)) {
-                    circularCheck(key, depChain);
                     final Constructor constructor = Inspection.constructor(key);
                     final Provider<?>[] paramProviders = providersForParams(key, constructor.getParameters(), depChain);
                     providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
