@@ -29,29 +29,34 @@ class Inspection {
     public static Constructor constructor(Key key) {
         Constructor inject = null;
         Constructor noarg = null;
-        for (Constructor c : key.type.getConstructors()) {
+        for (Constructor c : key.type.getDeclaredConstructors()) {
             if (c.isAnnotationPresent(Inject.class)) {
-                if(inject != null) {
+                if (inject != null) {
                     throw new FeatherException(String.format("Dependency %s has more than one @Inject constructor", key.type));
                 } else {
+                    c.setAccessible(true);
                     inject = c;
                 }
-            } else if(c.getParameters().length == 0) {
+            } else if (c.getParameters().length == 0) {
+                c.setAccessible(true);
                 noarg = c;
             }
         }
-        if(inject == null && noarg == null) {
+        Constructor constructor = inject != null ? inject : noarg;
+        if (constructor != null) {
+            constructor.setAccessible(true);
+            return constructor;
+        } else {
             throw new FeatherException(String.format("Dependency %s must have an @Inject constructor or a no-arg constructor or configured with @Provides in a module", key.type.getName()));
         }
-        return inject != null ? inject : noarg;
     }
 
     public static Set<Field> injectFields(Class<?> target) {
         Class<?> currentClass = target;
         Set<Field> fields = new HashSet<>();
-        while(!currentClass.equals(Object.class)) {
-            for(Field field : currentClass.getDeclaredFields()) {
-                if(field.isAnnotationPresent(Inject.class)) {
+        while (!currentClass.equals(Object.class)) {
+            for (Field field : currentClass.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Inject.class)) {
                     field.setAccessible(true);
                     fields.add(field);
                 }
@@ -62,8 +67,8 @@ class Inspection {
     }
 
     public static Annotation qualifier(Annotation[] annotations) {
-        for(Annotation annotation : annotations) {
-            if(annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
+        for (Annotation annotation : annotations) {
+            if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
                 return annotation;
             }
         }

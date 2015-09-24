@@ -11,14 +11,14 @@ public class BootstrapComparison {
         for (int i = 0; i < warmup; ++i) {
             Feather feather = Feather.with();
             Injector injector = Guice.createInjector();
-            plainNew();
+            NewAFactory.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
         }
 
         StopWatch.millis("Plain new", () -> {
             for (int i = 0; i < iterations; ++i) {
-                plainNew();
+                NewAFactory.create();
             }
         });
         StopWatch.millis("Guice", () -> {
@@ -34,9 +34,4 @@ public class BootstrapComparison {
             }
         });
     }
-
-    private static A plainNew() {
-        return new A(new B(new C()));
-    }
-
 }

@@ -12,14 +12,14 @@ public class InstantiationComparison {
         Injector injector = Guice.createInjector();
 
         for (int i = 0; i < warmup; ++i) {
-            plainNew();
+            NewAFactory.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
         }
 
         StopWatch.millis("Plain new", () -> {
             for (int i = 0; i < iterations; ++i) {
-                plainNew();
+                NewAFactory.create();
             }
         });
         StopWatch.millis("Guice", () -> {
@@ -32,9 +32,5 @@ public class InstantiationComparison {
                 feather.instance(A.class);
             }
         });
-    }
-
-    private static A plainNew() {
-        return new A(new B(new C()));
     }
 }

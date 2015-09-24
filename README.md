@@ -5,8 +5,8 @@ Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/e
 Comparing Feather to [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library itself weighs less than 3% of Guice
 - no external dependencies
-- based on a (atm) crude benchmark  - bootstraps ~3x faster, instantiates dependencies ~30% faster
-Note: not to downplay the mighty Guice at all, Guice has a much larger set of features
+- based on a crude benchmark - bootstraps ~3x faster, instantiates dependencies ~40% faster
+Note: not to downplay the mighty Guice at all, Guice has a much larger set of features.
 
 #####How it works#####
 Feather is based on reflection. In a typical scenario it inspects the constructor of the requested dependency (happens only once) and calls it with the necessary dependencies (a recursion). No classpath scanning, proxying or anything costly involved.
@@ -184,3 +184,5 @@ public class AUnitTest {
     }
 }
 ```
+######Method injection######
+Not supported

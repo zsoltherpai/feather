@@ -7,6 +7,7 @@
         <artifactId>feather-parent</artifactId>
         <version>0.6-SNAPSHOT</version>
     </parent>
+    <packaging>pom</packaging>
     <artifactId>feather-perftest</artifactId>
     <name>Feather performance test</name>
     <dependencies>
@@ -14,6 +15,7 @@
             <groupId>org.codejargon.feather</groupId>
             <artifactId>feather</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
 		<dependency>
 	<groupId>com.google.inject</groupId>

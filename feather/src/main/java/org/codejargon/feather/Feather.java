@@ -79,8 +79,8 @@ public class Feather {
                     circularCheck(key, depChain);
                     Set<Key> dependencyChain = depChain != null ? depChain : new LinkedHashSet<Key>();
                     final Constructor constructor = Inspection.constructor(key);
-                    final List<Provider<?>> paramProviders = providersForParams(key, constructor.getParameters(), append(dependencyChain, key));
-                    providers.put(key, singletonProvider(key, (Singleton) key.type.getAnnotation(Singleton.class), new Provider() {
+                    final List<Provider<?>> paramProviders = providersForParams(key, constructor.getParameters(), dependencyChain);
+                    providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
                                 @Override
                                 public Object get() {
                                     try {
@@ -108,11 +108,9 @@ public class Feather {
 
     private void circularCheck(Key key, Set<Key> depChain) {
         if (depChain != null && depChain.contains(key)) {
-            throw new FeatherException(String.format("Circular dependency: %s", chainString(append(depChain, key))));
+            throw new FeatherException(String.format("Circular dependency: %s", Key.chainString(depChain, key)));
         }
     }
-
-
 
     private void providerMethod(final Object module, final Method m) {
         final Key key = Key.of(m.getReturnType(), Inspection.qualifier(m.getAnnotations()));
@@ -152,7 +150,7 @@ public class Feather {
         } : provider;
     }
 
-    private List<Provider<?>> providersForParams(Key key, Parameter[] parameters, final Set<Key> newDependencyChain) {
+    private List<Provider<?>> providersForParams(final Key key, Parameter[] parameters, final Set<Key> dependencyChain) {
         if (!paramProviders.containsKey(key)) {
             synchronized (paramProviders) {
                 if (!paramProviders.containsKey(key)) {
@@ -166,13 +164,13 @@ public class Feather {
                                         new Provider() {
                                             @Override
                                             public Object get() {
-                                                return Feather.this.provider(Key.of(providerType, qualifier), newDependencyChain);
+                                                return provider(Key.of(providerType, qualifier), null);
                                             }
                                         } :
                                         new Provider() {
                                             @Override
                                             public Object get() {
-                                                return Feather.this.provider(Key.of(p.getType(), qualifier), newDependencyChain).get();
+                                                return provider(Key.of(p.getType(), qualifier), append(dependencyChain, key)).get();
                                             }
                                         }
                         );
@@ -188,19 +186,5 @@ public class Feather {
         LinkedHashSet<T> appended = new LinkedHashSet<>(set);
         appended.add(newItem);
         return appended;
-    }
-
-    static String chainString(Set<Key> keys) {
-        StringBuilder stringBuilder = new StringBuilder();
-        boolean first = true;
-        for (Key key : keys) {
-            if (first) {
-                stringBuilder.append(key.toString());
-                first = false;
-            } else {
-                stringBuilder.append(" -> ").append(key.toString());
-            }
-        }
-        return stringBuilder.toString();
     }
 }
