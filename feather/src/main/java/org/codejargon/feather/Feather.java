@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
-    private final Map<Key, List<Provider<?>>> paramProviders = new ConcurrentHashMap<>();
+    private final Map<Key, Provider<?>[]> paramProviders = new ConcurrentHashMap<>();
 
     public static Feather with(Object... modules) {
         return new Feather(Arrays.asList(modules));
@@ -52,7 +52,6 @@ public class Feather {
         return provider(Key.of(type), null);
     }
 
-
     public <T> Provider<T> provider(Key<T> key) {
         return provider(key, null);
     }
@@ -77,9 +76,8 @@ public class Feather {
             synchronized (providers) {
                 if (!providers.containsKey(key)) {
                     circularCheck(key, depChain);
-                    Set<Key> dependencyChain = depChain != null ? depChain : new LinkedHashSet<Key>();
                     final Constructor constructor = Inspection.constructor(key);
-                    final List<Provider<?>> paramProviders = providersForParams(key, constructor.getParameters(), dependencyChain);
+                    final Provider<?>[] paramProviders = providersForParams(key, constructor.getParameters(), depChain);
                     providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
                                 @Override
                                 public Object get() {
@@ -98,10 +96,10 @@ public class Feather {
         return (Provider<T>) providers.get(key);
     }
 
-    private Object[] arguments(List<Provider<?>> paramProviders) {
-        Object[] args = new Object[paramProviders.size()];
-        for (int i = 0; i < paramProviders.size(); ++i) {
-            args[i] = paramProviders.get(i).get();
+    private Object[] arguments(Provider<?>[] paramProviders) {
+        Object[] args = new Object[paramProviders.length];
+        for (int i = 0; i < paramProviders.length; ++i) {
+            args[i] = paramProviders[i].get();
         }
         return args;
     }
@@ -118,7 +116,7 @@ public class Feather {
             throw new FeatherException(String.format("Multiple providers for dependency %s defined in module %s", key.toString(), module.getClass()));
         }
         Singleton singleton = m.getAnnotation(Singleton.class) != null ? m.getAnnotation(Singleton.class) : m.getReturnType().getAnnotation(Singleton.class);
-        final List<Provider<?>> paramProviders = providersForParams(key, m.getParameters(), Collections.singleton(key));
+        final Provider<?>[] paramProviders = providersForParams(key, m.getParameters(), Collections.singleton(key));
         providers.put(key, singletonProvider(key, singleton, new Provider() {
                             @Override
                             public Object get() {
@@ -150,17 +148,19 @@ public class Feather {
         } : provider;
     }
 
-    private List<Provider<?>> providersForParams(final Key key, Parameter[] parameters, final Set<Key> dependencyChain) {
+    private Provider<?>[] providersForParams(final Key key, Parameter[] parameters, final Set<Key> depChain) {
         if (!paramProviders.containsKey(key)) {
             synchronized (paramProviders) {
                 if (!paramProviders.containsKey(key)) {
-                    List<Provider<?>> providers = new ArrayList<>(parameters.length);
-                    for (final Parameter p : parameters) {
+                    Provider<?>[] providers = new Provider<?>[parameters.length];
+                    for(int i = 0; i < parameters.length; ++i) {
+                        final Parameter p = parameters[i];
                         final Annotation qualifier = Inspection.qualifier(p.getAnnotations());
                         final Class<?> providerType = p.getType().equals(Provider.class) ?
                                 (Class<?>) ((ParameterizedType) p.getParameterizedType()).getActualTypeArguments()[0] :
                                 null;
-                        providers.add(providerType != null ?
+                        final Set<Key> dependencyChain = providerType == null ? append(depChain, key) : depChain;
+                        providers[i] = providerType != null ?
                                         new Provider() {
                                             @Override
                                             public Object get() {
@@ -170,10 +170,9 @@ public class Feather {
                                         new Provider() {
                                             @Override
                                             public Object get() {
-                                                return provider(Key.of(p.getType(), qualifier), append(dependencyChain, key)).get();
+                                                return provider(Key.of(p.getType(), qualifier), dependencyChain).get();
                                             }
-                                        }
-                        );
+                                        };
                     }
                     paramProviders.put(key, providers);
                 }
@@ -183,7 +182,7 @@ public class Feather {
     }
 
     private <T> Set<T> append(Set<T> set, T newItem) {
-        LinkedHashSet<T> appended = new LinkedHashSet<>(set);
+        LinkedHashSet<T> appended = (set != null && !set.isEmpty()) ? new LinkedHashSet<>(set) : new LinkedHashSet<T>();
         appended.add(newItem);
         return appended;
     }
