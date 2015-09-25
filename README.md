@@ -105,7 +105,7 @@ public class MyModule {
     }
 }
 
-// injecting the interface type will work:
+// injecting the interface type will work using the MyModule above:
 public class A {
     @Inject
     public A(Foo foo) {
