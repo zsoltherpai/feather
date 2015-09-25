@@ -11,10 +11,16 @@ public class Feather {
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
     private final Map<Key, Provider<?>[]> paramProviders = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs Feather with the provided configuration modules
+     */
     public static Feather with(Object... modules) {
         return new Feather(Arrays.asList(modules));
     }
 
+    /**
+     * Constructs Feather with the provided configuration modules
+     */
     public static Feather with(Iterable<?> modules) {
         return new Feather(modules);
     }
@@ -38,24 +44,36 @@ public class Feather {
     }
 
     /**
-     * Returns an instance of the requested type
+     * @return an instance of the requested type
      */
     public <T> T instance(Class<T> type) {
         return provider(Key.of(type), null).get();
     }
 
+    /**
+     * @return an instance of the requested key (type/qualifier annotation)
+     */
     public <T> T instance(Key<T> key) {
         return provider(key, null).get();
     }
 
+    /**
+     * @return a provider of the requested type
+     */
     public <T> Provider<T> provider(Class<T> type) {
         return provider(Key.of(type), null);
     }
 
+    /**
+     * @return a provider of the requested key (type, name/qualifier annotation)
+     */
     public <T> Provider<T> provider(Key<T> key) {
         return provider(key, null);
     }
 
+    /**
+     * Injects fields to the target object (non-transitive)
+     */
     public void injectFields(Object target) {
         for (Field f : Inspection.injectFields(target.getClass())) {
             Class<?> providerType = f.getType().equals(Provider.class) ?
@@ -184,10 +202,14 @@ public class Feather {
         return paramProviders.get(key);
     }
 
-    private <T> Set<T> append(Set<T> set, T newItem) {
-        LinkedHashSet<T> appended = (set != null && !set.isEmpty()) ? new LinkedHashSet<>(set) : new LinkedHashSet<T>();
-        appended.add(newItem);
-        return appended;
+    private Set<Key> append(Set<Key> set, Key newItem) {
+        if(set != null && !set.isEmpty()) {
+            Set<Key> appended = new LinkedHashSet<>(set);
+            appended.add(newItem);
+            return appended;
+        } else {
+            return Collections.singleton(newItem);
+        }
     }
 
     static String chainString(Set<Key> chain, Key lastKey) {
