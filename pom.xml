@@ -10,7 +10,6 @@
     <url>https://github.com/zsoltherpai/feather</url>
     <modules>
         <module>feather</module>
-        <module>performance-test</module>
     </modules>
     <description>
         Feather is an ultra-lightweight dependency injection (JSR-330) tool.
