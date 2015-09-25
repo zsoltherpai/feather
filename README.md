@@ -51,7 +51,8 @@ public class D {
     // something expensive or other reasons
 }
 ```
-Note: supports @Singleton on classes
+Note: supports @Singleton on classes  
+
 Getting an instance from Feather. Direct use of Feather should typically be used only for bootstrapping an application:
 ```java
 A instance = feather.instance(A.class);
@@ -72,7 +73,8 @@ public class MyModule {
     // ... other @Provides methods
 }
 ```
-Note: Feather supports @Singleton on @Provides annotated methods too
+Note: Feather supports @Singleton on @Provides annotated methods too  
+
 Initializing feather with any number modules:
 ```java
 Feather feather = Feather.with(new MyModule());
@@ -111,7 +113,7 @@ public class A {
     }
 }
 ```
-Note that the @Provides method serves just as a declaration, a binding here, no manual instantiation or argument passing needed
+Note that the @Provides method serves just as a binding declaration here, no manual instantiation or argument passing needed
 ######Qualifiers######
 Feather supports Qualifiers (Named or custom)
 ```java
