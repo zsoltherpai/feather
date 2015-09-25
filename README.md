@@ -1,12 +1,21 @@
 ####About Feather####
 Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's aimed for projects needing the basics done simply rather than a kitchen sink of features.
 
+```xml
+<dependency>
+    <groupId>org.codejargon.feather</groupId>
+    <artifactId>feather</artifactId>
+    <version>0.6</version>
+</dependency>
+```
+
 #####Footprint, performance######
 Comparing Feather to [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library itself weighs less than 3% of Guice
 - no external dependencies
 - based on a crude benchmark: bootstraps ~8x faster, instantiates dependencies ~40% faster. check out the performance-test module for details
-Note: not to downplay the mighty Guice at all, Guice has a much larger set of features.
+
+Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
 
 #####How it works#####
 Feather is based on reflection. In a typical scenario it inspects the constructor of the requested dependency (happens only once) and calls it with the necessary dependencies (a recursion). No classpath scanning, proxying or anything costly involved.
@@ -169,7 +178,7 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it deals with the dependency graph. However it does inject fields when triggered manually. The reason for this is to facilitate @Inject in unit tests:
+Feather supports Constructor injection only when it assembles the dependency graph. However it does inject fields when triggered manually. The reason for this is to facilitate @Inject in unit tests:
 ```java
 public class AUnitTest {
     @Inject
@@ -185,4 +194,4 @@ public class AUnitTest {
 }
 ```
 ######Method injection######
-Not supported
+Not supported. The need for it can be avoided by solid design. Targets of dependency injection object should ideally be immutable, method injection violates this.
