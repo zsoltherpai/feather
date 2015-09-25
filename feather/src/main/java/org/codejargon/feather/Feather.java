@@ -91,7 +91,6 @@ public class Feather {
                 }
             }
         }
-        circularCheck(key, depChain);
         return (Provider<T>) providers.get(key);
     }
 
@@ -158,20 +157,25 @@ public class Feather {
                         final Class<?> providerType = p.getType().equals(Provider.class) ?
                                 (Class<?>) ((ParameterizedType) p.getParameterizedType()).getActualTypeArguments()[0] :
                                 null;
-                        final Set<Key> dependencyChain = providerType == null ? append(depChain, key) : depChain;
-                        providers[i] = providerType != null ?
-                                        new Provider() {
-                                            @Override
-                                            public Object get() {
-                                                return provider(Key.of(providerType, qualifier), null);
-                                            }
-                                        } :
-                                        new Provider() {
-                                            @Override
-                                            public Object get() {
-                                                return provider(Key.of(p.getType(), qualifier), dependencyChain).get();
-                                            }
-                                        };
+                        if(providerType == null) {
+                            final Key newKey = Key.of(p.getType(), qualifier);
+                            final Set<Key> dependencyChain = append(depChain, key);
+                            circularCheck(newKey, dependencyChain);
+                            providers[i] = new Provider() {
+                                @Override
+                                public Object get() {
+                                    return provider(newKey, dependencyChain).get();
+                                }
+                            };
+                        } else {
+                            final Key newKey = Key.of(providerType, qualifier);
+                            providers[i] = new Provider() {
+                                @Override
+                                public Object get() {
+                                    return provider(newKey, null);
+                                }
+                            };
+                        }
                     }
                     paramProviders.put(key, providers);
                 }
