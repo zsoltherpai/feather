@@ -1,5 +1,5 @@
 ####About Feather####
-Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's aimed for projects needing the basics done simply rather than a kitchen sink of features.
+Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - low footprint.
 
 ```xml
 <dependency>
@@ -10,25 +10,25 @@ Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/e
 ```
 
 #####Footprint, performance######
-Comparing Feather to [Guice] (https://github.com/google/guice "Guice") - as a reference:
+Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library itself weighs less than 3% of Guice
 - no external dependencies
-- based on a crude benchmark: bootstraps ~8x faster, instantiates dependencies ~40% faster. check out the performance-test module for details
+- based on a crude benchmark: bootstraps ~8 times faster, instantiates dependencies ~40% faster. check out the performance-test module for details
 
 Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
 
 #####How it works#####
-Feather is based on reflection. In a typical scenario it inspects the constructor of the requested dependency (happens only once) and calls it with the necessary dependencies (a recursion). No classpath scanning, proxying or anything costly involved.
+Feather is based on reflection to inject dependencies. No code generating, classpath scanning, proxying or anything costly involved.
 
 #####Usage - code examples#####
 ######Create the injector (Feather)######
-Typically an application needs a single Feather instance (the JSR-330 Injector).
 ```java
 Feather feather = Feather.with();
 ```
+Typically an application needs a single Feather instance (the JSR-330 Injector).
 
 ######Instantiating dependencies######
-Dependencies having an @Inject constructor or a default constructor will be handled by Feather without the need of any configuration. Eg:
+Dependencies having an @Inject constructor or a default constructor will be delivered by Feather without the need for any configuration. Eg:
 ```java
 public class A {
     @Inject
@@ -48,19 +48,19 @@ public class C {}
 
 @Singleton
 public class D {
-    // something expensive or other reasons
+    // something expensive or other reasons for being singleton
 }
 ```
 Note: supports @Singleton on classes  
 
-Getting an instance from Feather. Direct use of Feather should typically be used only for bootstrapping an application:
+Getting an instance of A from Feather.
 ```java
 A instance = feather.instance(A.class);
 ```
-
+Note: direct use of Feather should typically be used only for bootstrapping an application
 
 ######Provide additional dependencies to Feather######
-When a dependency doesn't have a suitable constructor (@Inject annotated or noarg), or custom construction, Feather relies on configuration. This is done through @Provides annotated methods in configuration modules:
+When a dependency doesn't have a suitable (@Inject annotated or noarg) constructor , needs custom construction, Feather relies on configuration. This is done by configuration modules:
 ```java
 public class MyModule {
     @Provides
@@ -75,7 +75,7 @@ public class MyModule {
 ```
 Note: Feather supports @Singleton on @Provides annotated methods too  
 
-Initializing feather with any number modules:
+Bootstrapping feather with module(s):
 ```java
 Feather feather = Feather.with(new MyModule());
 ```
@@ -84,7 +84,7 @@ The provided dependency will be available for injection:
 public class MyApp {
     @Inject 
     public MyApp(DataSource ds) {
-        // ...
+        // return a DataSource instance
     }
 }
 ```
@@ -105,7 +105,7 @@ public class MyModule {
     }
 }
 
-// injecting the interface type will work using the MyModule above:
+// injecting an instance of Foo interface will work using the MyModule above:
 public class A {
     @Inject
     public A(Foo foo) {
@@ -146,7 +146,7 @@ String some = feather.instance(String.class, "some");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
-Feather can inject javax.inject.Provider as dependencies
+Feather can inject javax.inject.Provider as dependencies to facilitate lazy loading or allow circular dependencies:
 ```java
 public class A {
     @Inject
@@ -180,7 +180,7 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it assembles the dependency graph. However it does inject fields when triggered manually. The reason for this is to facilitate @Inject in unit tests:
+Feather supports Constructor injection only when it assembles the dependency graph. However injecting fields when triggered on a target object non-transitively - to facilitate testing (eg. junit tests)
 ```java
 public class AUnitTest {
     @Inject
@@ -196,4 +196,4 @@ public class AUnitTest {
 }
 ```
 ######Method injection######
-Not supported. The need for it can be avoided by solid design. Targets of dependency injection object should ideally be immutable, method injection violates this.
+Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
