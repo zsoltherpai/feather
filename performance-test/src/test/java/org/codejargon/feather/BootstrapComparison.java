@@ -2,6 +2,7 @@ package org.codejargon.feather;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.picocontainer.MutablePicoContainer;
 
 public class BootstrapComparison {
     private static final int warmup = 1000;
@@ -11,9 +12,11 @@ public class BootstrapComparison {
         for (int i = 0; i < warmup; ++i) {
             Feather feather = Feather.with();
             Injector injector = Guice.createInjector();
+            MutablePicoContainer pico = InstantiationComparison.pico();
             NewAFactory.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
+            pico.getComponent(A.class);
         }
 
         StopWatch.millis("Plain new", () -> {
@@ -31,6 +34,12 @@ public class BootstrapComparison {
             for (int i = 0; i < iterations; ++i) {
                 Feather feather = Feather.with();
                 feather.instance(A.class);
+            }
+        });
+        StopWatch.millis("PicoContainer", () -> {
+            for (int i = 0; i < iterations; ++i) {
+                MutablePicoContainer pico = InstantiationComparison.pico();
+                pico.getComponent(A.class);
             }
         });
     }
