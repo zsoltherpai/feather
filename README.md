@@ -1,5 +1,5 @@
 ####About Feather####
-Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - low footprint.
+Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - small footprint.
 
 ```xml
 <dependency>
@@ -11,7 +11,7 @@ Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/e
 
 #####Footprint, performance######
 Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
-- the library itself weighs less than 3% of Guice
+- the library weighs less than 3% of Guice
 - no external dependencies
 - based on a crude benchmark: bootstraps ~8 times faster, instantiates dependencies ~40% faster. check out the performance-test module for details
 
