@@ -20,7 +20,7 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>3.0</version>
+            <version>4.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -29,6 +29,20 @@
             <version>2.15</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.squareup.dagger</groupId>
+            <artifactId>dagger</artifactId>
+            <version>1.2.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.dagger</groupId>
+            <artifactId>dagger-compiler</artifactId>
+            <version>1.2.2</version>
+            <optional>true</optional>
+            <scope>test</scope>
+        </dependency>
+
 
     </dependencies>
     <build>
@@ -40,6 +54,9 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <annotationProcessors>
+                        <annotationProcessor>dagger.internal.codegen.ComponentProcessor</annotationProcessor>
+                    </annotationProcessors>
                 </configuration>
             </plugin>
         </plugins>

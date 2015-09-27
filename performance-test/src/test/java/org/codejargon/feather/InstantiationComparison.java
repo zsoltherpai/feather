@@ -2,6 +2,8 @@ package org.codejargon.feather;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import dagger.Module;
+import dagger.ObjectGraph;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 
@@ -13,13 +15,16 @@ public class InstantiationComparison {
         Feather feather = Feather.with();
         Injector injector = Guice.createInjector();
         MutablePicoContainer pico = pico();
-
+        ObjectGraph dagger = dagger();
         for (int i = 0; i < warmup; ++i) {
             NewAFactory.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
             pico.getComponent(A.class);
+            dagger.get(A.class);
         }
+
+        A a = dagger.get(A.class);
 
         StopWatch.millis("Plain new", () -> {
             for (int i = 0; i < iterations; ++i) {
@@ -36,11 +41,20 @@ public class InstantiationComparison {
                 feather.instance(A.class);
             }
         });
+        StopWatch.millis("Dagger", () -> {
+            for (int i = 0; i < iterations; ++i) {
+                dagger.get(A.class);
+            }
+        });
         StopWatch.millis("PicoContainer", () -> {
             for (int i = 0; i < iterations; ++i) {
                 pico.getComponent(A.class);
             }
         });
+    }
+
+    public static ObjectGraph dagger() {
+        return ObjectGraph.create(new DaggerModule());
     }
 
     public static MutablePicoContainer pico() {
@@ -52,5 +66,10 @@ public class InstantiationComparison {
         pico.addComponent(D2.class);
         pico.addComponent(E.class);
         return pico;
+    }
+
+    @Module(injects = {A.class, B.class, C.class, D1.class, D2.class, E.class})
+    public static class DaggerModule {
+
     }
 }
