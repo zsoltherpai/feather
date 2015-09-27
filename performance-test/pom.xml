@@ -7,7 +7,7 @@
         <artifactId>feather-parent</artifactId>
         <version>0.7-SNAPSHOT</version>
     </parent>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <artifactId>feather-perftest</artifactId>
     <name>Feather performance test</name>
     <dependencies>
@@ -39,8 +39,8 @@
             <groupId>com.squareup.dagger</groupId>
             <artifactId>dagger-compiler</artifactId>
             <version>1.2.2</version>
-            <optional>true</optional>
             <scope>test</scope>
+            <optional>true</optional>
         </dependency>
 
 
@@ -54,9 +54,6 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <annotationProcessors>
-                        <annotationProcessor>dagger.internal.codegen.ComponentProcessor</annotationProcessor>
-                    </annotationProcessors>
                 </configuration>
             </plugin>
         </plugins>
