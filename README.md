@@ -1,5 +1,5 @@
 ####About Feather####
-Feather is an ultra-lightweight dependency injecton ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - small footprint.
+Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - small footprint.
 
 ```xml
 <dependency>
