@@ -8,6 +8,7 @@ Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/
     <version>0.6</version>
 </dependency>
 ```
+[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.6 "Javadoc") for Feather
 
 #####Footprint, performance######
 Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
