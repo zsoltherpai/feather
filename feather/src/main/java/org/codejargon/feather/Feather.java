@@ -94,7 +94,7 @@ public class Feather {
             synchronized (providers) {
                 if (!providers.containsKey(key)) {
                     final Constructor constructor = Inspection.constructor(key);
-                    final Provider<?>[] paramProviders = providersForParams(key, constructor.getParameters(), depChain);
+                    final Provider<?>[] paramProviders = providersForParams(key, constructor.getParameterTypes(), constructor.getGenericParameterTypes(), constructor.getParameterAnnotations(), depChain);
                     providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
                                 @Override
                                 public Object get() {
@@ -132,7 +132,7 @@ public class Feather {
             throw new FeatherException(String.format("Multiple providers for dependency %s defined in module %s", key.toString(), module.getClass()));
         }
         Singleton singleton = m.getAnnotation(Singleton.class) != null ? m.getAnnotation(Singleton.class) : m.getReturnType().getAnnotation(Singleton.class);
-        final Provider<?>[] paramProviders = providersForParams(key, m.getParameters(), Collections.singleton(key));
+        final Provider<?>[] paramProviders = providersForParams(key, m.getParameterTypes(), m.getGenericParameterTypes(), m.getParameterAnnotations(), Collections.singleton(key));
         providers.put(key, singletonProvider(key, singleton, new Provider() {
                             @Override
                             public Object get() {
@@ -164,19 +164,20 @@ public class Feather {
         } : provider;
     }
 
-    private Provider<?>[] providersForParams(final Key key, Parameter[] parameters, final Set<Key> depChain) {
+    private Provider<?>[] providersForParams(final Key key, Class<?>[] parameterClasses, Type[] parameterTypes, Annotation[][] parameterAnnotations, final Set<Key> depChain) {
         if (!paramProviders.containsKey(key)) {
             synchronized (paramProviders) {
                 if (!paramProviders.containsKey(key)) {
-                    Provider<?>[] providers = new Provider<?>[parameters.length];
-                    for(int i = 0; i < parameters.length; ++i) {
-                        final Parameter p = parameters[i];
-                        final Annotation qualifier = Inspection.qualifier(p.getAnnotations());
-                        final Class<?> providerType = p.getType().equals(Provider.class) ?
-                                (Class<?>) ((ParameterizedType) p.getParameterizedType()).getActualTypeArguments()[0] :
+                    Provider<?>[] providers = new Provider<?>[parameterTypes.length];
+                    for(int i = 0; i < parameterTypes.length; ++i) {
+                        Type parameterType = parameterTypes[i];
+                        Class<?> parameterClass = parameterClasses[i];
+                        Annotation qualifier = Inspection.qualifier(parameterAnnotations[i]);
+                        Class<?> providerType = Provider.class.equals(parameterClass) ?
+                                (Class<?>)((ParameterizedType) parameterType).getActualTypeArguments()[0] :
                                 null;
                         if(providerType == null) {
-                            final Key newKey = Key.of(p.getType(), qualifier);
+                            final Key newKey = Key.of(parameterClass, qualifier);
                             final Set<Key> dependencyChain = append(depChain, key);
                             circularCheck(newKey, dependencyChain);
                             providers[i] = new Provider() {
