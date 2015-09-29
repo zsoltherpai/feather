@@ -5,16 +5,16 @@ Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/
 <dependency>
     <groupId>org.codejargon.feather</groupId>
     <artifactId>feather</artifactId>
-    <version>0.6</version>
+    <version>0.7</version>
 </dependency>
 ```
-[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.6 "Javadoc") for Feather
+[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.7 "Javadoc") for Feather
 
 #####Footprint, performance######
 Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library weighs less than 3% of Guice
 - no external dependencies
-- based on a crude benchmark: bootstraps ~10 times faster, instantiates dependencies ~2 times faster. check out the performance-test module for details
+- based on a crude benchmark: bootstraps ~12 times faster, instantiates dependencies ~2 times faster. check out the performance-test module for details
 
 Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
 
