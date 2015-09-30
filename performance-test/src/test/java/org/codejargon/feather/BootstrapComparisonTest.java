@@ -2,8 +2,10 @@ package org.codejargon.feather;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import dagger.Module;
 import dagger.ObjectGraph;
 import org.junit.Test;
+import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -19,9 +21,11 @@ public class BootstrapComparisonTest {
         for (int i = 0; i < warmup; ++i) {
             Feather feather = Feather.with();
             Injector injector = Guice.createInjector();
-            MutablePicoContainer pico = InstantiationThroughputComparisonTest.pico();
-            ObjectGraph dagger = InstantiationThroughputComparisonTest.dagger();
-            NewAFactory.create();
+            MutablePicoContainer pico = pico();
+            ObjectGraph dagger = dagger();
+            PojoFactory pojo = new PojoFactory();
+
+            pojo.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
             pico.getComponent(A.class);
@@ -30,7 +34,8 @@ public class BootstrapComparisonTest {
 
         StopWatch.millis("Plain new", () -> {
             for (int i = 0; i < iterations; ++i) {
-                NewAFactory.create();
+                PojoFactory pojo = new PojoFactory();
+                pojo.create();
             }
         });
         StopWatch.millis("Guice", () -> {
@@ -47,15 +52,36 @@ public class BootstrapComparisonTest {
         });
         StopWatch.millis("Dagger", () -> {
             for (int i = 0; i < iterations; ++i) {
-                ObjectGraph dagger = InstantiationThroughputComparisonTest.dagger();
+                ObjectGraph dagger = dagger();
                 dagger.get(A.class);
             }
         });
         StopWatch.millis("PicoContainer", () -> {
             for (int i = 0; i < iterations; ++i) {
-                MutablePicoContainer pico = InstantiationThroughputComparisonTest.pico();
+                MutablePicoContainer pico = pico();
                 pico.getComponent(A.class);
             }
         });
+    }
+
+
+    public static ObjectGraph dagger() {
+        return ObjectGraph.create(new DaggerModule());
+    }
+
+    public static MutablePicoContainer pico() {
+        MutablePicoContainer pico = new DefaultPicoContainer();
+        pico.addComponent(A.class);
+        pico.addComponent(B.class);
+        pico.addComponent(C.class);
+        pico.addComponent(D1.class);
+        pico.addComponent(D2.class);
+        pico.addComponent(E.class);
+        return pico;
+    }
+
+    @Module(injects = {A.class, B.class, C.class, D1.class, D2.class, E.class})
+    public static class DaggerModule {
+
     }
 }

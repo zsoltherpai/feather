@@ -2,10 +2,8 @@ package org.codejargon.feather;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import dagger.Module;
 import dagger.ObjectGraph;
 import org.junit.Test;
-import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
 
 /**
@@ -20,10 +18,11 @@ public class InstantiationThroughputComparisonTest {
     public void instantiationThroughput() {
         Feather feather = Feather.with();
         Injector injector = Guice.createInjector();
-        MutablePicoContainer pico = pico();
-        ObjectGraph dagger = dagger();
+        MutablePicoContainer pico = BootstrapComparisonTest.pico();
+        ObjectGraph dagger = BootstrapComparisonTest.dagger();
+        PojoFactory pojo = new PojoFactory();
         for (int i = 0; i < warmup; ++i) {
-            NewAFactory.create();
+            pojo.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
             pico.getComponent(A.class);
@@ -32,7 +31,7 @@ public class InstantiationThroughputComparisonTest {
 
         StopWatch.millis("Plain new", () -> {
             for (int i = 0; i < iterations; ++i) {
-                NewAFactory.create();
+                pojo.create();
             }
         });
         StopWatch.millis("Guice", () -> {
@@ -55,25 +54,5 @@ public class InstantiationThroughputComparisonTest {
                 pico.getComponent(A.class);
             }
         });
-    }
-
-    public static ObjectGraph dagger() {
-        return ObjectGraph.create(new DaggerModule());
-    }
-
-    public static MutablePicoContainer pico() {
-        MutablePicoContainer pico = new DefaultPicoContainer();
-        pico.addComponent(A.class);
-        pico.addComponent(B.class);
-        pico.addComponent(C.class);
-        pico.addComponent(D1.class);
-        pico.addComponent(D2.class);
-        pico.addComponent(E.class);
-        return pico;
-    }
-
-    @Module(injects = {A.class, B.class, C.class, D1.class, D2.class, E.class})
-    public static class DaggerModule {
-
     }
 }
