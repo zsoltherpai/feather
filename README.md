@@ -1,5 +1,7 @@
 ####About Feather####
-Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330")) library for Java and Android. It's main goal is to deliver easy-to-use basic dependency injection functionality with high performance and - taken to the extreme - small footprint.
+Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
+library for Java and Android. It's main motivation is to deliver easy-to-use basic dependency injection functionality with
+high performance and - taken to the extreme - small footprint.
 
 ```xml
 <dependency>
@@ -14,22 +16,25 @@ Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/
 Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
 - the library weighs less than 3% of Guice
 - no external dependencies
-- based on a crude benchmark: bootstraps ~10 times faster, instantiates dependencies ~2 times faster. check out the performance-test module for details
+- based on a crude benchmark: bootstraps ~10 times faster, instantiates dependencies ~2 times faster. check out the
+performance-test module for details
 
 Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
 
 #####How it works#####
-Feather is based on reflection to inject dependencies. No code generating, classpath scanning, proxying or anything costly involved.
+Feather is based on efficient use of reflection to instantiate dependencies. No code generating, classpath scanning,
+proxying or anything costly involved.
 
 #####Usage - code examples#####
-######Create the injector (Feather)######
+######Create Feather (the injector)######
 ```java
 Feather feather = Feather.with();
 ```
-Typically an application needs a single Feather instance (the JSR-330 Injector).
+Typically an application needs a single Feather instance.
 
 ######Instantiating dependencies######
-Dependencies having an @Inject constructor or a default constructor will be delivered by Feather without the need for any configuration. Eg:
+Dependencies having an @Inject constructor or a default constructor will be delivered by Feather without the need for
+any configuration. Eg:
 ```java
 public class A {
     @Inject
@@ -58,10 +63,11 @@ Getting an instance of A from Feather.
 ```java
 A instance = feather.instance(A.class);
 ```
-Note: direct use of Feather should typically be used only for bootstrapping an application
+Direct use of Feather should typically be used only for bootstrapping an application.
 
 ######Provide additional dependencies to Feather######
-When a dependency doesn't have a suitable (@Inject annotated or noarg) constructor , needs custom construction, Feather relies on configuration. This is done by configuration modules:
+When a dependency doesn't have a suitable (@Inject annotated or noarg) constructor, or needs custom construction,
+Feather relies on configuration. This is done by configuration modules:
 ```java
 public class MyModule {
     @Provides
@@ -76,11 +82,11 @@ public class MyModule {
 ```
 Note: Feather supports @Singleton on @Provides annotated methods too  
 
-Bootstrapping feather with module(s):
+Setting up Feather with module(s):
 ```java
 Feather feather = Feather.with(new MyModule());
 ```
-The provided dependency will be available for injection:
+The configured dependency will be available for injection:
 ```java
 public class MyApp {
     @Inject 
@@ -143,7 +149,7 @@ public class A {
 ```
 Or instantiating programmaticaly:
 ```java
-String some = feather.instance(String.class, "some");
+String some = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
