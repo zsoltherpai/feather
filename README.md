@@ -149,7 +149,7 @@ public class A {
 ```
 Or instantiating programmaticaly:
 ```java
-String some = feather.instance(String.class, "greeting");
+String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
