@@ -1,7 +1,7 @@
 ####About Feather####
 Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
-library for Java and Android. It's main motivation is to deliver easy-to-use basic dependency injection functionality with
-high performance and - taken to the extreme - small footprint.
+library for Java and Android. It delivers easy-to-use dependency injection functionality with high performance 
+and - taken to the extreme - small footprint.
 
 ```xml
 <dependency>
@@ -20,10 +20,6 @@ Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - 
 performance-test module for details
 
 Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
-
-#####How it works#####
-Feather is based on efficient use of reflection to instantiate dependencies. No code generating, classpath scanning,
-proxying or anything costly involved.
 
 #####Usage - code examples#####
 ######Create Feather (the injector)######
@@ -204,3 +200,7 @@ public class AUnitTest {
 ```
 ######Method injection######
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
+
+#####How it works#####
+Feather is based on efficient use of reflection to instantiate dependencies. No code generating, classpath scanning,
+proxying or anything costly involved.
