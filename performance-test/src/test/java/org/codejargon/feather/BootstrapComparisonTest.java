@@ -7,29 +7,27 @@ import dagger.ObjectGraph;
 import org.junit.Test;
 import org.picocontainer.DefaultPicoContainer;
 import org.picocontainer.MutablePicoContainer;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 /**
  Measures bootstrap cost of different DI tools.
  An iteration includes creating an injector and instantiating the dependency graph.
  */
 public class BootstrapComparisonTest {
-    private static final int warmup = 1000;
-    private static final int iterations = 100000;
+    private static final int warmup = 100;
+    private static final int iterations = 10000;
 
     @Test
     public void bootstrapSpeed() {
+        System.out.println(String.format("Bootstrapping DI containers %s times", iterations));
         for (int i = 0; i < warmup; ++i) {
-            Feather feather = Feather.with();
-            Injector injector = Guice.createInjector();
-            MutablePicoContainer pico = pico();
-            ObjectGraph dagger = dagger();
-            PojoFactory pojo = new PojoFactory();
-
-            pojo.create();
-            feather.instance(A.class);
-            injector.getInstance(A.class);
-            pico.getComponent(A.class);
-            dagger.get(A.class);
+            Feather.with().instance(A.class);
+            Guice.createInjector().getInstance(A.class);
+            pico().getComponent(A.class);
+            dagger().get(A.class);
+            new PojoFactory().create();
+            spring().getBean(A.class);
         }
 
         StopWatch.millis("Plain new", () -> {
@@ -56,6 +54,12 @@ public class BootstrapComparisonTest {
                 dagger.get(A.class);
             }
         });
+        StopWatch.millis("Spring", () -> {
+            for (int i = 0; i < iterations; ++i) {
+                ApplicationContext applicationContext = spring();
+                applicationContext.getBean(A.class);
+            }
+        });
         StopWatch.millis("PicoContainer", () -> {
             for (int i = 0; i < iterations; ++i) {
                 MutablePicoContainer pico = pico();
@@ -65,9 +69,7 @@ public class BootstrapComparisonTest {
     }
 
 
-    public static ObjectGraph dagger() {
-        return ObjectGraph.create(new DaggerModule());
-    }
+
 
     public static MutablePicoContainer pico() {
         MutablePicoContainer pico = new DefaultPicoContainer();
@@ -80,8 +82,19 @@ public class BootstrapComparisonTest {
         return pico;
     }
 
-    @Module(injects = {A.class, B.class, C.class, D1.class, D2.class, E.class})
-    public static class DaggerModule {
+    public static ApplicationContext spring() {
+        return new AnnotationConfigApplicationContext("org.codejargon.feather");
+    }
 
+    public static ObjectGraph dagger() {
+        return ObjectGraph.create(new DaggerModule());
+    }
+
+    @Module(injects = {A.class})
+    public static class DaggerModule {
+        @dagger.Provides
+        E e() {
+            return new E();
+        }
     }
 }

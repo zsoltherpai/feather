@@ -1,9 +1,10 @@
 package org.codejargon.feather;
 
-import javax.inject.Inject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
+@Component
+@Scope("prototype")
 public class E {
-    @Inject
-    public E() {
-    }
+
 }
