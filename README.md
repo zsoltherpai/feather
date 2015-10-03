@@ -183,7 +183,7 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it injects/assembles the dependencies. It also support injecting to fields when triggered on a target object (non-transitive) - eg to facilitate testing. An example with a junit test:
+Feather supports Constructor injection only when it injects/assembles the dependencies. It also does inject field when explicitly triggered on a target object - eg to facilitate testing. An example with a junit test:
 ```java
 public class AUnitTest {
     @Inject
