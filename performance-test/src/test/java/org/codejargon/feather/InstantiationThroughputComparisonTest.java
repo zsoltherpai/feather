@@ -5,28 +5,33 @@ import com.google.inject.Injector;
 import dagger.ObjectGraph;
 import org.junit.Test;
 import org.picocontainer.MutablePicoContainer;
+import org.springframework.context.ApplicationContext;
 
 /**
  Measures instantiation throughput of different DI tools.
  An iteration includes instantiating the dependency graph. (injector created only once)
  */
 public class InstantiationThroughputComparisonTest {
-    private static final int warmup = 1000;
-    private static final int iterations = 10000000;
+    private static final int warmup = 100;
+    private static final int iterations = 1000000;
 
     @Test
     public void instantiationThroughput() {
+        System.out.println(String.format("Instantiating a dependency graph %s times", iterations));
         Feather feather = Feather.with();
         Injector injector = Guice.createInjector();
         MutablePicoContainer pico = BootstrapComparisonTest.pico();
         ObjectGraph dagger = BootstrapComparisonTest.dagger();
+        ApplicationContext spring = BootstrapComparisonTest.spring();
         PojoFactory pojo = new PojoFactory();
+
         for (int i = 0; i < warmup; ++i) {
             pojo.create();
             feather.instance(A.class);
             injector.getInstance(A.class);
             pico.getComponent(A.class);
             dagger.get(A.class);
+            spring.getBean(A.class);
         }
 
         StopWatch.millis("Plain new", () -> {
@@ -47,6 +52,11 @@ public class InstantiationThroughputComparisonTest {
         StopWatch.millis("Dagger", () -> {
             for (int i = 0; i < iterations; ++i) {
                 dagger.get(A.class);
+            }
+        });
+        StopWatch.millis("Spring", () -> {
+            for (int i = 0; i < iterations; ++i) {
+                spring.getBean(A.class);
             }
         });
         StopWatch.millis("PicoContainer", () -> {

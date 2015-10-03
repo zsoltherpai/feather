@@ -22,6 +22,6 @@ public class PojoFactory {
     }
 
     public D1 createD1() {
-        return new D1();
+        return new D1(new E());
     }
 }
