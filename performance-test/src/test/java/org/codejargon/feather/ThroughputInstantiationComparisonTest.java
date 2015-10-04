@@ -8,10 +8,10 @@ import org.picocontainer.MutablePicoContainer;
 import org.springframework.context.ApplicationContext;
 
 /**
- Measures instantiation throughput of different DI tools.
- An iteration includes instantiating the dependency graph. (injector created only once)
+ Measures instantiation throughput of DI tools.
+ An iteration includes instantiating the dependency graph (injector created only once)
  */
-public class InstantiationThroughputComparisonTest {
+public class ThroughputInstantiationComparisonTest {
     private static final int warmup = 100;
     private static final int iterations = 1000000;
 
@@ -20,9 +20,9 @@ public class InstantiationThroughputComparisonTest {
         System.out.println(String.format("Instantiating a dependency graph %s times", iterations));
         Feather feather = Feather.with();
         Injector injector = Guice.createInjector();
-        MutablePicoContainer pico = BootstrapComparisonTest.pico();
-        ObjectGraph dagger = BootstrapComparisonTest.dagger();
-        ApplicationContext spring = BootstrapComparisonTest.spring();
+        MutablePicoContainer pico = StartupComparisonTest.pico();
+        ObjectGraph dagger = StartupComparisonTest.dagger();
+        ApplicationContext spring = StartupComparisonTest.spring();
         PojoFactory pojo = new PojoFactory();
 
         for (int i = 0; i < warmup; ++i) {

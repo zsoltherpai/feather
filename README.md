@@ -13,13 +13,10 @@ and - taken to the extreme - small footprint.
 [Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.7 "Javadoc") for Feather
 
 #####Footprint, performance######
-Comparing Feather to Google [Guice] (https://github.com/google/guice "Guice") - as a reference:
-- the library weighs less than 3% of Guice
-- no external dependencies
-- based on a crude benchmark: bootstraps ~10 times faster, instantiates dependencies ~2 times faster. check out the
-performance-test module for details
-
-Note: not to downplay the mighty Guice at all, Guice has a much wider array of features.
+- compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
+- compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
+Note: startup means initializing the container / instantiating an object graph. Executable benchmark published 
+in 'performance-test' module.
 
 #####Usage - code examples#####
 ######Create Feather (the injector)######

@@ -14,13 +14,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  Measures bootstrap cost of different DI tools.
  An iteration includes creating an injector and instantiating the dependency graph.
  */
-public class BootstrapComparisonTest {
+public class StartupComparisonTest {
     private static final int warmup = 100;
     private static final int iterations = 10000;
 
     @Test
-    public void bootstrapSpeed() {
-        System.out.println(String.format("Bootstrapping DI containers %s times", iterations));
+    public void startupTime() {
+        System.out.println(String.format("Starting up DI containers & instantiating object graph %s times", iterations));
         for (int i = 0; i < warmup; ++i) {
             Feather.with().instance(A.class);
             Guice.createInjector().getInstance(A.class);
