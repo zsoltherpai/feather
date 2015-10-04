@@ -16,7 +16,7 @@ and - taken to the extreme - small footprint.
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
 
-Note: startup means initializing the container / instantiating an object graph. Executable benchmark published 
+Note: startup means initializing the container / instantiating an object graph. The executable benchmark is published 
 in 'performance-test' module.
 
 #####Usage - code examples#####
@@ -27,7 +27,7 @@ Feather feather = Feather.with();
 Typically an application needs a single Feather instance.
 
 ######Instantiating dependencies######
-Dependencies having an @Inject constructor or a default constructor will be delivered by Feather without the need for
+Dependencies having an @Inject constructor or a default constructor will be injected by Feather without the need for
 any configuration. Eg:
 ```java
 public class A {
@@ -55,13 +55,12 @@ Note: supports @Singleton on classes
 
 Getting an instance of A from Feather.
 ```java
-A instance = feather.instance(A.class);
+A a = feather.instance(A.class);
 ```
-Direct use of Feather should typically be used only for bootstrapping an application.
+Direct use of Feather should typically happen when bootstrapping an application.
 
 ######Provide additional dependencies to Feather######
-When a dependency doesn't have a suitable (@Inject annotated or noarg) constructor, or needs custom construction,
-Feather relies on configuration. This is done by configuration modules:
+When injecting an interface, a 3rd party class or an object needing configuration, Feather relies on configuration modules:
 ```java
 public class MyModule {
     @Provides
@@ -89,7 +88,8 @@ public class MyApp {
     }
 }
 ```
-Feather injects dependencies to @Provides methods aguments
+Feather injects dependencies to @Provides methods aguments. This is particularly interesting for binding an implementation
+to an interface:
 ```java
 public interface Foo {}
 public class FooBar implements Foo {
@@ -114,7 +114,7 @@ public class A {
     }
 }
 ```
-Note that the @Provides method serves just as a binding declaration here, no manual instantiation or argument passing needed
+Note that the @Provides method serves just as a binding declaration here, no manual instantiation needed
 ######Qualifiers######
 Feather supports Qualifiers (Named or custom)
 ```java
@@ -147,7 +147,7 @@ String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
-Feather can inject javax.inject.Provider as dependencies to facilitate lazy loading or allow circular dependencies:
+Feather can inject javax.inject.Provider as dependencies to facilitate lazy loading or circular dependencies:
 ```java
 public class A {
     @Inject
@@ -181,7 +181,8 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it injects/assembles the dependencies. It also does inject field when explicitly triggered on a target object - eg to facilitate testing. An example with a junit test:
+Feather supports Constructor injection only when it injects/assembles the dependencies. It also does inject field when 
+explicitly triggered on a target object - eg to facilitate testing. A simplified example with a junit test:
 ```java
 public class AUnitTest {
     @Inject
