@@ -14,7 +14,8 @@ and - taken to the extreme - small footprint.
 
 #####Footprint, performance######
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
-- compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed  
+- compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
+
 Note: startup means initializing the container / instantiating an object graph. Executable benchmark published 
 in 'performance-test' module.
 
