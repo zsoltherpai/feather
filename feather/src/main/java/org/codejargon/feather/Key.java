@@ -71,7 +71,7 @@ public class Key<T> {
 
     @Override
     public String toString() {
-        String suffix = name != null ? String.format("@\"%s\"", name) : qualifier != null ? "@" + qualifier.getSimpleName() : "";
+        String suffix = name != null ? "@\"" + name + "\"" : qualifier != null ? "@" + qualifier.getSimpleName() : "";
         return type.getName() + suffix;
     }
 
