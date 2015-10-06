@@ -15,8 +15,8 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
  An iteration includes creating an injector and instantiating the dependency graph.
  */
 public class StartupComparisonTest {
-    private static final int warmup = 100;
-    private static final int iterations = 10000;
+    private static final int warmup = 200;
+    private static final int iterations = 20000;
 
     @Test
     public void startupTime() {
