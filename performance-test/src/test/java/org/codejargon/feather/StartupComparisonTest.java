@@ -20,22 +20,14 @@ public class StartupComparisonTest {
 
     @Test
     public void startupTime() {
-        System.out.println(String.format("Starting up DI containers & instantiating object graph %s times", iterations));
+        benchmarkExplanation();
         for (int i = 0; i < warmup; ++i) {
             Feather.with().instance(A.class);
             Guice.createInjector().getInstance(A.class);
             pico().getComponent(A.class);
             dagger().get(A.class);
-            new PojoFactory().create();
             spring().getBean(A.class);
         }
-
-        StopWatch.millis("Plain new", () -> {
-            for (int i = 0; i < iterations; ++i) {
-                PojoFactory pojo = new PojoFactory();
-                pojo.create();
-            }
-        });
         StopWatch.millis("Guice", () -> {
             for (int i = 0; i < iterations; ++i) {
                 Injector injector = Guice.createInjector();
@@ -54,21 +46,28 @@ public class StartupComparisonTest {
                 dagger.get(A.class);
             }
         });
-        StopWatch.millis("Spring", () -> {
-            for (int i = 0; i < iterations; ++i) {
-                ApplicationContext applicationContext = spring();
-                applicationContext.getBean(A.class);
-            }
-        });
         StopWatch.millis("PicoContainer", () -> {
             for (int i = 0; i < iterations; ++i) {
                 MutablePicoContainer pico = pico();
                 pico.getComponent(A.class);
             }
         });
+        StopWatch.millis("Spring", () -> {
+            for (int i = 0; i < iterations; ++i) {
+                ApplicationContext applicationContext = spring();
+                applicationContext.getBean(A.class);
+            }
+        });
     }
 
-
+    private void benchmarkExplanation() {
+        System.out.println(
+                String.format(
+                        "Starting up DI containers & instantiating a dependency graph %s times." +
+                        "Comparison includes: [Guice, Feather, Dagger, PicoContainer, Spring]",
+                        iterations)
+        );
+    }
 
 
     public static MutablePicoContainer pico() {
