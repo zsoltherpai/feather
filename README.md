@@ -200,6 +200,50 @@ public class AUnitTest {
 ######Method injection######
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
-#####How it works#####
-Feather is based on efficient use of reflection to instantiate dependencies. No code generating, classpath scanning,
-proxying or anything costly involved.
+#####Android considerations#####
+For best possible performance, try to make most dependencies immutable, as @Singleton.
+```java
+class ExampleActivity extends Activity {
+    @Inject
+    private Foo foo;
+    @Inject
+    private Bar bar;
+
+  @Override public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.simple_activity);
+    Feather feather = // obtain a reference to feather
+    feather.injectFields(this);
+  }
+}
+```
+#####How it works under the hood#####
+Feather is based on optimized use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
+costly involved. A simple example with some explanation:
+```java
+class A {
+    @Inject
+    A(B b) {
+
+    }
+}
+
+class B {
+
+}
+```
+Without the use of Feather, class A could be instantiated with the following factory methods:
+```java
+A a() {
+    return new A(b());
+}
+
+B b() {
+    return new B();
+}
+```
+Feather does something very similar, but avoids the need for writing such factory code. When an instance of A is requested,
+Feather calls it's constructor with the necessary arguments - an instance of B in this case. The instance of B is created
+the same way - a simple recursion.
+Note: Most of the work is done only once per dependency type. There are slight alterations when @Provides, @Singleton,
+and @Qualifier are involved.
