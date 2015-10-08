@@ -245,5 +245,5 @@ B b() {
 ```
 Feather avoids the need for writing such factory code - by doing the exact same thing internally: When an instance of A is needed,
 Feather calls A's constructor with the necessary arguments - an instance of B. That instance of B is created the same way 
-- simple recursion - and the instance of A is ready to use.
+\- simple recursion \- and the instance of A is ready to use.
 
