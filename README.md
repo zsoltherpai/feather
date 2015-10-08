@@ -219,7 +219,9 @@ class ExampleActivity extends Activity {
 ```
 #####How it works under the hood#####
 Feather is based on optimized use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
-costly involved. A simple example with some explanation:
+costly involved.
+
+A simple example with some explanation:
 ```java
 class A {
     @Inject
@@ -245,5 +247,6 @@ B b() {
 Feather does something very similar, but avoids the need for writing such factory code. When an instance of A is requested,
 Feather calls it's constructor with the necessary arguments - an instance of B in this case. The instance of B is created
 the same way - a simple recursion.
+
 Note: Most of the work is done only once per dependency type. There are slight alterations when @Provides, @Singleton,
 and @Qualifier are involved.
