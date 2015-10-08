@@ -201,7 +201,7 @@ public class AUnitTest {
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
 #####Android considerations#####
-For best possible performance, try to make most dependencies immutable, as @Singleton.
+For best possible performance, most dependencies should immutable, defined as @Singleton.
 ```java
 class ExampleActivity extends Activity {
     @Inject
@@ -209,9 +209,8 @@ class ExampleActivity extends Activity {
     @Inject
     private Bar bar;
 
-  @Override public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.simple_activity);
+  @Override public void onCreate(Bundle savedState) {
+    // ...
     Feather feather = // obtain a reference to feather
     feather.injectFields(this);
   }
@@ -244,9 +243,7 @@ B b() {
     return new B();
 }
 ```
-Feather does something very similar, but avoids the need for writing such factory code. When an instance of A is requested,
-Feather calls it's constructor with the necessary arguments - an instance of B in this case. The instance of B is created
-the same way - a simple recursion.
+Feather avoids the need for writing such factory code - by doing the exact same thing internally: When an instance of A is needed,
+Feather calls A's constructor with the necessary arguments - an instance of B. That instance of B is created the same way 
+- simple recursion - and the instance of A is ready to use.
 
-Note: Most of the work is done only once per dependency type. There are slight alterations when @Provides, @Singleton,
-and @Qualifier are involved.
