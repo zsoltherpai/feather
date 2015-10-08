@@ -7,10 +7,10 @@ and - taken to the extreme - small footprint.
 <dependency>
     <groupId>org.codejargon.feather</groupId>
     <artifactId>feather</artifactId>
-    <version>0.7</version>
+    <version>0.8</version>
 </dependency>
 ```
-[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.7 "Javadoc") for Feather
+[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.8 "Javadoc") for Feather
 
 #####Footprint, performance######
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
