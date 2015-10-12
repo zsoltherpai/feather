@@ -53,7 +53,7 @@ Creating an instance of A:
 ```java
 A a = feather.instance(A.class);
 ```
-######Provide additional dependencies to Feather######
+######Providing additional dependencies to Feather######
 When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration modules:
 ```java
 public class MyModule {
