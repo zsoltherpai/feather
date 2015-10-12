@@ -1,8 +1,6 @@
 ####About Feather####
 Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
-library for Java and Android. It delivers easy-to-use dependency injection functionality with high performance 
-and - taken to the extreme - small footprint.
-
+library for Java and Android.
 ```xml
 <dependency>
     <groupId>org.codejargon.feather</groupId>
@@ -11,8 +9,8 @@ and - taken to the extreme - small footprint.
 </dependency>
 ```
 [Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.8 "Javadoc") for Feather
-
 #####Footprint, performance######
+Simplicity, high performance and small footprint are in Feather's primary focus.
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
 
@@ -24,10 +22,10 @@ in 'performance-test' module.
 ```java
 Feather feather = Feather.with();
 ```
-Typically an application needs a single Feather instance.
+An application typically needs a single Feather instance.
 
 ######Instantiating dependencies######
-Dependencies having an @Inject constructor or a default constructor will be injected by Feather without the need for
+Dependencies with @Inject constructor or a default constructor can be injected by Feather without the need for
 any configuration. Eg:
 ```java
 public class A {
@@ -51,35 +49,28 @@ public class D {
     // something expensive or other reasons for being singleton
 }
 ```
-Note: supports @Singleton on classes  
-
-Getting an instance of A from Feather.
+Creating an instance of A:
 ```java
 A a = feather.instance(A.class);
 ```
-Direct use of Feather should typically happen when bootstrapping an application.
-
 ######Provide additional dependencies to Feather######
-When injecting an interface, a 3rd party class or an object needing configuration, Feather relies on configuration modules:
+When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration modules:
 ```java
 public class MyModule {
     @Provides
-    @Singleton 
+    @Singleton // an app will probably need a single instance 
     DataSource ds() {
         DataSource dataSource = // instantiate some DataSource
         return dataSource;
     }
-    
-    // ... other @Provides methods
 }
 ```
-Note: Feather supports @Singleton on @Provides annotated methods too  
 
 Setting up Feather with module(s):
 ```java
 Feather feather = Feather.with(new MyModule());
 ```
-The configured dependency will be available for injection:
+The DataSource dependency will now be available for injection:
 ```java
 public class MyApp {
     @Inject 
@@ -88,10 +79,11 @@ public class MyApp {
     }
 }
 ```
-Feather injects dependencies to @Provides methods aguments. This is particularly interesting for binding an implementation
+Feather injects dependencies to @Provides methods aguments. This is particularly useful for binding an implementation
 to an interface:
 ```java
 public interface Foo {}
+
 public class FooBar implements Foo {
     @Inject
     public FooBar(X x, Y y, Z z) {
@@ -116,7 +108,7 @@ public class A {
 ```
 Note that the @Provides method serves just as a binding declaration here, no manual instantiation needed
 ######Qualifiers######
-Feather supports Qualifiers (Named or custom)
+Feather supports Qualifiers (@Named or custom qualifiers)
 ```java
 public class MyModule {
     @Provides
@@ -141,7 +133,7 @@ public class A {
     }
 }
 ```
-Or instantiating programmaticaly:
+Or directly from feather:
 ```java
 String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
@@ -157,7 +149,7 @@ public class A {
     }
 }
 ```
-Or programmatically:
+Or directly from Feather:
 ```java
 Provider<B> bProvider = feather.provider(B.class);
 ```
@@ -181,8 +173,8 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it injects/assembles the dependencies. It also does inject field when 
-explicitly triggered on a target object - eg to facilitate testing. A simplified example with a junit test:
+Feather supports Constructor injection only when it injects dependencies. It also injects field when 
+explicitly triggered on a target object - eg to facilitate testing. A simple example with a junit test:
 ```java
 public class AUnitTest {
     @Inject
@@ -192,7 +184,7 @@ public class AUnitTest {
 
     @Before
     public void setUp() {
-        Feather feather = // configure a Feather instance
+        Feather feather = // obtain a Feather instance
         feather.injectFields(this);
     }
 }
@@ -201,7 +193,7 @@ public class AUnitTest {
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
 #####Android considerations#####
-For best possible performance, most dependencies should immutable, defined as @Singleton.
+For best possible performance, dependencies should immutable, defined as @Singleton.
 ```java
 class ExampleActivity extends Activity {
     @Inject
@@ -211,13 +203,13 @@ class ExampleActivity extends Activity {
 
   @Override public void onCreate(Bundle savedState) {
     // ...
-    Feather feather = // obtain a reference to feather
+    Feather feather = // obtain a Feather instance
     feather.injectFields(this);
   }
 }
 ```
 #####How it works under the hood#####
-Feather is based on optimized use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
+Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
 costly involved.
 
 A simple example with some explanation:
@@ -243,7 +235,7 @@ B b() {
     return new B();
 }
 ```
-Feather avoids the need for writing such factory code - by doing the exact same thing internally: When an instance of A is needed,
+Feather avoids the need for writing such factories - by doing the same thing internally: When an instance of A is injected,
 Feather calls A's constructor with the necessary arguments - an instance of B. That instance of B is created the same way 
-\- simple recursion \- and the instance of A is ready for use.
+\- a simple recursion, this time with no further dependencies \- and the instance of A is created.
 
