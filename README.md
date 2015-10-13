@@ -193,8 +193,21 @@ public class AUnitTest {
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
 #####Android considerations#####
-For best possible performance, dependencies should immutable, defined as @Singleton.
 ```java
+class ExampleApplication extends Application {
+    private Feather feather;
+
+    @Override public void onCreate() {
+        // ...
+        feather = Feather.with( /* modules if needed*/ );
+    }
+
+    public Feather feather() {
+        return feather;
+    }
+}
+
+
 class ExampleActivity extends Activity {
     @Inject
     private Foo foo;
@@ -203,11 +216,11 @@ class ExampleActivity extends Activity {
 
   @Override public void onCreate(Bundle savedState) {
     // ...
-    Feather feather = // obtain a Feather instance
-    feather.injectFields(this);
+    ((ExampleApplication) getApplication()).feather().injectFields(this);
   }
 }
 ```
+For best possible performance, dependencies should immutable, defined as @Singleton.
 #####How it works under the hood#####
 Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
 costly involved.
