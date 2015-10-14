@@ -54,7 +54,8 @@ Creating an instance of A:
 A a = feather.instance(A.class);
 ```
 ######Providing additional dependencies to Feather######
-When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration modules:
+When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration
+modules defining those dependencies:
 ```java
 public class MyModule {
     @Provides
@@ -75,11 +76,11 @@ The DataSource dependency will now be available for injection:
 public class MyApp {
     @Inject 
     public MyApp(DataSource ds) {
-        // return a DataSource instance
+        // ...
     }
 }
 ```
-Feather injects dependencies to @Provides methods aguments. This is particularly useful for binding an implementation
+Feather injects dependencies to @Provides methods aguments. This is particularly relevant for binding an implementation
 to an interface:
 ```java
 public interface Foo {}
@@ -139,13 +140,12 @@ String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
-Feather can inject javax.inject.Provider as dependencies to facilitate lazy loading or circular dependencies:
+Feather can inject javax.inject.Provider to facilitate lazy loading or circular dependencies:
 ```java
 public class A {
     @Inject
     public A(Provider<B> b) {
-        // fetch a new instance when needed
-        B b = b.get();
+        B b = b.get(); // fetch a new instance when needed
     }
 }
 ```
@@ -173,8 +173,8 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather supports Constructor injection only when it injects dependencies. It also injects field when 
-explicitly triggered on a target object - eg to facilitate testing. A simple example with a junit test:
+Feather only supports Constructor injection when injecting to a dependency graph. It inject fields only if it's
+explicitly triggered for a target object - eg to facilitate testing. A simple example with a junit test:
 ```java
 public class AUnitTest {
     @Inject
@@ -216,7 +216,9 @@ class ExampleActivity extends Activity {
 
   @Override public void onCreate(Bundle savedState) {
     // ...
-    ((ExampleApplication) getApplication()).feather().injectFields(this);
+    ((ExampleApplication) getApplication())
+        .feather()
+            .injectFields(this);
   }
 }
 ```
