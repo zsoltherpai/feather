@@ -1,6 +1,7 @@
 ####About Feather####
 Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
-library for Java and Android.
+library for Java and Android. There are a number of existing dependency injection frameworks, why a new one? Feather is 
+probably the simplest, tiniest implementation with high performance - see the comparison section below.
 ```xml
 <dependency>
     <groupId>org.codejargon.feather</groupId>
@@ -9,14 +10,6 @@ library for Java and Android.
 </dependency>
 ```
 [Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.8 "Javadoc") for Feather
-#####Footprint, performance######
-Simplicity, high performance and small footprint are in Feather's primary focus.
-- compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
-- compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
-
-Note: startup means initializing the container / instantiating an object graph. The executable benchmark is published 
-in 'performance-test' module.
-
 #####Usage - code examples#####
 ######Create Feather (the injector)######
 ```java
@@ -80,7 +73,7 @@ public class MyApp {
     }
 }
 ```
-Feather injects dependencies to @Provides methods aguments. This is particularly relevant for binding an implementation
+Feather injects dependencies to @Provides methods aguments. This is particularly useful for binding an implementation
 to an interface:
 ```java
 public interface Foo {}
@@ -207,7 +200,6 @@ class ExampleApplication extends Application {
     }
 }
 
-
 class ExampleActivity extends Activity {
     @Inject
     private Foo foo;
@@ -223,6 +215,10 @@ class ExampleActivity extends Activity {
 }
 ```
 For best possible performance, dependencies should immutable, defined as @Singleton.
+#####Footprint, performance comparison######
+- compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
+- compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
+Note: executable comparison including Spring, Guice, Dagger, PicoContainer is in 'performance-test' module.
 #####How it works under the hood#####
 Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
 costly involved.
