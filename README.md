@@ -219,6 +219,7 @@ For best possible performance, dependencies should immutable, defined as @Single
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size, ~2x startup speed
 Note: executable comparison including Spring, Guice, Dagger, PicoContainer is in 'performance-test' module.
+
 #####How it works under the hood#####
 Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
 costly involved.
