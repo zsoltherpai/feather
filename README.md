@@ -1,8 +1,8 @@
 ####About Feather####
 Feather is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
-library for Java and Android. There are a number of existing dependency injection frameworks, why another one? These tools
-are often seen as "magical" and complex. Feather - with just a few hundred lines of code - is probably the
-simplest, tiniest, most obvious one, and is quite efficient too (see comparison section below).
+library for Java and Android. Dependency injection frameworks are often perceived as "magical" and complex. 
+Feather - with just a few hundred lines of code - is probably the easiest, tiniest, most obvious one, 
+and is quite efficient too (see comparison section below).
 ```xml
 <dependency>
     <groupId>org.codejargon.feather</groupId>
@@ -216,11 +216,13 @@ class ExampleActivity extends Activity {
 }
 ```
 For best possible performance, dependencies should immutable, defined as @Singleton.
-#####Footprint, performance comparison#####
+#####Footprint, performance, comparison#####
+Maintaining small footprint and high performance is in Feather's main focus.
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size (of just Dagger's run-time part), ~2x startup speed
 
-Note: executable comparison including Spring, Guice, Dagger, PicoContainer is in 'performance-test' module.
+Note: startup means creation of the container and instantiation of an object graph. Executable comparison including Spring, 
+Guice, Dagger, PicoContainer is in 'performance-test' module.
 
 #####How it works under the hood#####
 Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
