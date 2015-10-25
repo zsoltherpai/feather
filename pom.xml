@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.codejargon.feather</groupId>
     <artifactId>feather-parent</artifactId>
-    <version>0.9-SNAPSHOT</version>
+    <version>0.9</version>
     <packaging>pom</packaging>
     <name>Feather Parent</name>
     <url>https://github.com/zsoltherpai/feather</url>
@@ -12,7 +12,7 @@
         <module>feather</module>
     </modules>
     <description>
-        Feather is an ultra-lightweight dependency injection (JSR-330) tool.
+        Feather is an ultra-lightweight dependency injection (JSR-330) library for Java and Android.
     </description>
     <licenses>
         <license>
