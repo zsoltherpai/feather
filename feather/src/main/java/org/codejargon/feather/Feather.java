@@ -250,12 +250,11 @@ public class Feather {
     }
 
     private static String chainString(Set<Key> chain, Key lastKey) {
-        List<Key> keys = new ArrayList<>(chain);
-        keys.add(lastKey);
         StringBuilder chainString = new StringBuilder();
-        for (Key key : keys) {
-            chainString.append(" -> ").append(key.toString());
+        for (Key key : chain) {
+            chainString.append(key.toString()).append(" -> ");
         }
+        chainString.append(lastKey.toString());
         return chainString.toString();
     }
 
@@ -264,15 +263,12 @@ public class Feather {
         Constructor noarg = null;
         for (Constructor c : key.type.getDeclaredConstructors()) {
             if (c.isAnnotationPresent(Inject.class)) {
-                if (inject != null) {
-                    throw new FeatherException(String.format("Dependency %s has more than one @Inject constructor", key.type));
-                } else {
-                    c.setAccessible(true);
+                if(inject == null) {
                     inject = c;
-
+                } else {
+                    throw new FeatherException(String.format("Dependency %s has more than one @Inject constructor", key.type));
                 }
             } else if (c.getParameters().length == 0) {
-                c.setAccessible(true);
                 noarg = c;
             }
         }
@@ -281,23 +277,23 @@ public class Feather {
             constructor.setAccessible(true);
             return constructor;
         } else {
-            throw new FeatherException(String.format("Dependency %s must have an @Inject constructor or a no-arg constructor or configured with @Provides in a module", key.type.getName()));
+            throw new FeatherException(String.format("Dependency %s doesn't have an @Inject constructor, no-arg constructor or a module provider", key.type.getName()));
         }
     }
 
     private static Set<Method> providers(Class<?> clazz) {
         Class<?> currentClass = clazz;
-        Set<Method> providerMethods = new HashSet<>();
+        Set<Method> providers = new HashSet<>();
         while (!currentClass.equals(Object.class)) {
             for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Provides.class) && !providerInSubClass(method, providerMethods)) {
+                if (method.isAnnotationPresent(Provides.class) && !providerInSubClass(method, providers)) {
                     method.setAccessible(true);
-                    providerMethods.add(method);
+                    providers.add(method);
                 }
             }
             currentClass = currentClass.getSuperclass();
         }
-        return providerMethods;
+        return providers;
     }
 
     private static Annotation qualifier(Annotation[] annotations) {

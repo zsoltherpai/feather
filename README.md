@@ -49,7 +49,7 @@ A a = feather.instance(A.class);
 ```
 ######Providing additional dependencies to Feather######
 When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration
-modules defining those dependencies:
+modules providing those dependencies:
 ```java
 public class MyModule {
     @Provides
@@ -60,7 +60,6 @@ public class MyModule {
     }
 }
 ```
-
 Setting up Feather with module(s):
 ```java
 Feather feather = Feather.with(new MyModule());
@@ -134,7 +133,7 @@ String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
 ######Provider injection######
-Feather can inject javax.inject.Provider to facilitate lazy loading or circular dependencies:
+Feather injects [Provider](https://docs.oracle.com/javaee/6/api/javax/inject/Provider.html)s  to facilitate lazy loading or circular dependencies:
 ```java
 public class A {
     @Inject
@@ -143,7 +142,7 @@ public class A {
     }
 }
 ```
-Or directly from Feather:
+Or getting a Provider directly from Feather:
 ```java
 Provider<B> bProvider = feather.provider(B.class);
 ```
@@ -167,7 +166,7 @@ public class TestModule extends Module {
 }
 ```
 ######Field injection######
-Feather only supports Constructor injection when injecting to a dependency graph. It inject fields only if it's
+Feather supports Constructor injection only when injecting to a dependency graph. It inject fields also if it's
 explicitly triggered for a target object - eg to facilitate testing. A simple example with a junit test:
 ```java
 public class AUnitTest {
@@ -186,7 +185,7 @@ public class AUnitTest {
 ######Method injection######
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
-#####Android considerations#####
+#####Android example#####
 ```java
 class ExampleApplication extends Application {
     private Feather feather;
@@ -215,9 +214,9 @@ class ExampleActivity extends Activity {
   }
 }
 ```
-For best possible performance, dependencies should immutable, defined as @Singleton.
+For best possible performance, dependencies should be immutable and @Singleton.
 #####Footprint, performance, comparison#####
-Maintaining small footprint and high performance is in Feather's main focus.
+Small footprint and high performance is in Feather's main focus.
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size (of just Dagger's run-time part), ~2x startup speed
 
