@@ -2,9 +2,6 @@ package org.codejargon.feather;
 
 import javax.inject.Named;
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class Key<T> {
     final Class<T> type;
