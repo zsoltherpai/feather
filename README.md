@@ -7,10 +7,10 @@ and is quite efficient too (see comparison section below).
 <dependency>
     <groupId>org.codejargon.feather</groupId>
     <artifactId>feather</artifactId>
-    <version>0.8</version>
+    <version>0.9</version>
 </dependency>
 ```
-[Javadoc](http://zsoltherpai.github.io/feather/apidocs-0.8 "Javadoc") for Feather
+[Javadoc](http://zsoltherpai.github.io/feather/apidocs "Javadoc") for Feather
 #####Usage - code examples#####
 ######Create Feather (the injector)######
 ```java
