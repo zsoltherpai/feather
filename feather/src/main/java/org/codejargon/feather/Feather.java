@@ -286,7 +286,7 @@ public class Feather {
         Set<Method> providers = new HashSet<>();
         while (!currentClass.equals(Object.class)) {
             for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Provides.class) && !providerInSubClass(method, providers)) {
+                if (method.isAnnotationPresent(Provides.class) && clazz.equals(currentClass) || !providerInSubClass(method, providers)) {
                     method.setAccessible(true);
                     providers.add(method);
                 }
