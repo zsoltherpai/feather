@@ -82,7 +82,7 @@ public class Feather {
         for (InjectField f : injectFields.get(target.getClass())) {
             try {
                 f.field.set(target, f.providerType ? provider(f.key) : instance(f.key));
-            } catch (IllegalAccessException e) {
+            } catch (Exception e) {
                 throw new FeatherException(String.format("Can't inject to field %s in %s", f.field.getName(), target.getClass().getName()));
             }
         }
@@ -98,7 +98,7 @@ public class Feather {
                         public Object get() {
                             try {
                                 return constructor.newInstance(arguments(paramProviders));
-                            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                            } catch (Exception e) {
                                 throw new FeatherException(String.format("Can't instantiate dependency %s", key.toString()), e);
                             }
                         }
@@ -126,7 +126,7 @@ public class Feather {
                             public Object get() {
                                 try {
                                     return m.invoke(module, arguments(paramProviders));
-                                } catch (IllegalAccessException | InvocationTargetException e) {
+                                } catch (Exception e) {
                                     throw new FeatherException(String.format("Can't instantiate %s with provider", key.toString()), e);
                                 }
                             }
@@ -221,7 +221,7 @@ public class Feather {
         Set<Field> fields = fields(target);
         InjectField[] injectFields = new InjectField[fields.size()];
         int i = 0;
-        for(Field f : fields) {
+        for (Field f : fields) {
             Class<?> providerType = f.getType().equals(Provider.class) ?
                     (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0] :
                     null;
@@ -263,7 +263,7 @@ public class Feather {
         Constructor noarg = null;
         for (Constructor c : key.type.getDeclaredConstructors()) {
             if (c.isAnnotationPresent(Inject.class)) {
-                if(inject == null) {
+                if (inject == null) {
                     inject = c;
                 } else {
                     throw new FeatherException(String.format("Dependency %s has more than one @Inject constructor", key.type));
