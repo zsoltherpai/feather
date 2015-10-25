@@ -83,7 +83,7 @@ public class Feather {
             try {
                 f.field.set(target, f.providerType ? provider(f.key) : instance(f.key));
             } catch (Exception e) {
-                throw new FeatherException(String.format("Can't inject to field %s in %s", f.field.getName(), target.getClass().getName()));
+                throw new FeatherException(String.format("Can't inject field %s in %s", f.field.getName(), target.getClass().getName()));
             }
         }
     }
@@ -99,7 +99,7 @@ public class Feather {
                             try {
                                 return constructor.newInstance(arguments(paramProviders));
                             } catch (Exception e) {
-                                throw new FeatherException(String.format("Can't instantiate dependency %s", key.toString()), e);
+                                throw new FeatherException(String.format("Can't instantiate %s", key.toString()), e);
                             }
                         }
                     })
@@ -111,7 +111,7 @@ public class Feather {
     private void providerMethod(final Object module, final Method m) {
         final Key key = Key.of(m.getReturnType(), qualifier(m.getAnnotations()));
         if (providers.containsKey(key)) {
-            throw new FeatherException(String.format("Multiple providers for dependency %s, in module %s", key.toString(), module.getClass()));
+            throw new FeatherException(String.format("%s has multiple providers, module %s", key.toString(), module.getClass()));
         }
         Singleton singleton = m.getAnnotation(Singleton.class) != null ? m.getAnnotation(Singleton.class) : m.getReturnType().getAnnotation(Singleton.class);
         final Provider<?>[] paramProviders = providersForParams(
@@ -266,7 +266,7 @@ public class Feather {
                 if (inject == null) {
                     inject = c;
                 } else {
-                    throw new FeatherException(String.format("Dependency %s has more than one @Inject constructor", key.type));
+                    throw new FeatherException(String.format("%s has multiple @Inject constructors", key.type));
                 }
             } else if (c.getParameters().length == 0) {
                 noarg = c;
@@ -277,21 +277,21 @@ public class Feather {
             constructor.setAccessible(true);
             return constructor;
         } else {
-            throw new FeatherException(String.format("Dependency %s doesn't have an @Inject constructor, no-arg constructor or a module provider", key.type.getName()));
+            throw new FeatherException(String.format("%s doesn't have an @Inject or no-arg constructor, or a module provider", key.type.getName()));
         }
     }
 
     private static Set<Method> providers(Class<?> clazz) {
-        Class<?> currentClass = clazz;
+        Class<?> current = clazz;
         Set<Method> providers = new HashSet<>();
-        while (!currentClass.equals(Object.class)) {
-            for (Method method : clazz.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Provides.class) && clazz.equals(currentClass) || !providerInSubClass(method, providers)) {
+        while (!current.equals(Object.class)) {
+            for (Method method : current.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(Provides.class) && (clazz.equals(current) || !providerInSubClass(method, providers))) {
                     method.setAccessible(true);
                     providers.add(method);
                 }
             }
-            currentClass = currentClass.getSuperclass();
+            current = current.getSuperclass();
         }
         return providers;
     }
