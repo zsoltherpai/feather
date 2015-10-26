@@ -6,8 +6,8 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Here be dragons. This code is optimized for small footprint / performance rather than being pretty. Maintenance
-// is no issue in this library due to overall size.
+// Here be dragons: this code is optimized for small footprint / performance rather than being pretty.
+// Partly as an experiment to see the results of extreme minimalism. Maintenance is a non-issue with this library due it's size.
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
@@ -172,7 +172,9 @@ public class Feather {
             if (providerType == null) {
                 final Key newKey = Key.of(parameterClass, qualifier);
                 final Set<Key> newChain = append(chain, key);
-                circular(newKey, newChain);
+                if (newChain.contains(newKey)) {
+                    throw new FeatherException(String.format("Circular dependency: %s", chain(newChain, newKey)));
+                }
                 providers[i] = new Provider() {
                     @Override
                     public Object get() {
@@ -198,12 +200,6 @@ public class Feather {
             params[i] = paramProviders[i].get();
         }
         return params;
-    }
-
-    private static void circular(Key key, Set<Key> chain) {
-        if (chain != null && chain.contains(key)) {
-            throw new FeatherException(String.format("Circular dependency: %s", chain(chain, key)));
-        }
     }
 
     private static Set<Key> append(Set<Key> set, Key newKey) {
