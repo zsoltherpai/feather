@@ -9,7 +9,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
-    private final Map<Key, Provider<?>[]> paramProviders = new ConcurrentHashMap<>();
     private final Map<Class, InjectField[]> injectFields = new ConcurrentHashMap<>(0);
 
     /**
@@ -89,15 +88,15 @@ public class Feather {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> Provider<T> provider(final Key<T> key, Set<Key> depChain) {
+    private <T> Provider<T> provider(final Key<T> key, Set<Key> chain) {
         if (!providers.containsKey(key)) {
             final Constructor constructor = constructor(key);
-            final Provider<?>[] paramProviders = providersForParams(key, constructor.getParameterTypes(), constructor.getGenericParameterTypes(), constructor.getParameterAnnotations(), depChain);
+            final Provider<?>[] paramProviders = paramProviders(key, constructor.getParameterTypes(), constructor.getGenericParameterTypes(), constructor.getParameterAnnotations(), chain);
             providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
                         @Override
                         public Object get() {
                             try {
-                                return constructor.newInstance(arguments(paramProviders));
+                                return constructor.newInstance(params(paramProviders));
                             } catch (Exception e) {
                                 throw new FeatherException(String.format("Can't instantiate %s", key.toString()), e);
                             }
@@ -114,7 +113,7 @@ public class Feather {
             throw new FeatherException(String.format("%s has multiple providers, module %s", key.toString(), module.getClass()));
         }
         Singleton singleton = m.getAnnotation(Singleton.class) != null ? m.getAnnotation(Singleton.class) : m.getReturnType().getAnnotation(Singleton.class);
-        final Provider<?>[] paramProviders = providersForParams(
+        final Provider<?>[] paramProviders = paramProviders(
                 key,
                 m.getParameterTypes(),
                 m.getGenericParameterTypes(),
@@ -125,7 +124,7 @@ public class Feather {
                             @Override
                             public Object get() {
                                 try {
-                                    return m.invoke(module, arguments(paramProviders));
+                                    return m.invoke(module, params(paramProviders));
                                 } catch (Exception e) {
                                     throw new FeatherException(String.format("Can't instantiate %s with provider", key.toString()), e);
                                 }
@@ -152,58 +151,55 @@ public class Feather {
         } : provider;
     }
 
-    private Provider<?>[] providersForParams(
+    private Provider<?>[] paramProviders(
             final Key key,
             Class<?>[] parameterClasses,
             Type[] parameterTypes,
             Annotation[][] parameterAnnotations,
-            final Set<Key> depChain
+            final Set<Key> chain
     ) {
-        if (!paramProviders.containsKey(key)) {
-            Provider<?>[] providers = new Provider<?>[parameterTypes.length];
-            for (int i = 0; i < parameterTypes.length; ++i) {
-                Type parameterType = parameterTypes[i];
-                Class<?> parameterClass = parameterClasses[i];
-                Annotation qualifier = qualifier(parameterAnnotations[i]);
-                Class<?> providerType = Provider.class.equals(parameterClass) ?
-                        (Class<?>) ((ParameterizedType) parameterType).getActualTypeArguments()[0] :
-                        null;
-                if (providerType == null) {
-                    final Key newKey = Key.of(parameterClass, qualifier);
-                    final Set<Key> dependencyChain = append(depChain, key);
-                    circularCheck(newKey, dependencyChain);
-                    providers[i] = new Provider() {
-                        @Override
-                        public Object get() {
-                            return provider(newKey, dependencyChain).get();
-                        }
-                    };
-                } else {
-                    final Key newKey = Key.of(providerType, qualifier);
-                    providers[i] = new Provider() {
-                        @Override
-                        public Object get() {
-                            return provider(newKey, null);
-                        }
-                    };
-                }
+        Provider<?>[] providers = new Provider<?>[parameterTypes.length];
+        for (int i = 0; i < parameterTypes.length; ++i) {
+            Type parameterType = parameterTypes[i];
+            Class<?> parameterClass = parameterClasses[i];
+            Annotation qualifier = qualifier(parameterAnnotations[i]);
+            Class<?> providerType = Provider.class.equals(parameterClass) ?
+                    (Class<?>) ((ParameterizedType) parameterType).getActualTypeArguments()[0] :
+                    null;
+            if (providerType == null) {
+                final Key newKey = Key.of(parameterClass, qualifier);
+                final Set<Key> newChain = append(chain, key);
+                circular(newKey, newChain);
+                providers[i] = new Provider() {
+                    @Override
+                    public Object get() {
+                        return provider(newKey, newChain).get();
+                    }
+                };
+            } else {
+                final Key newKey = Key.of(providerType, qualifier);
+                providers[i] = new Provider() {
+                    @Override
+                    public Object get() {
+                        return provider(newKey, null);
+                    }
+                };
             }
-            paramProviders.put(key, providers);
         }
-        return paramProviders.get(key);
+        return providers;
     }
 
-    private static Object[] arguments(Provider<?>[] paramProviders) {
-        Object[] args = new Object[paramProviders.length];
+    private static Object[] params(Provider<?>[] paramProviders) {
+        Object[] params = new Object[paramProviders.length];
         for (int i = 0; i < paramProviders.length; ++i) {
-            args[i] = paramProviders[i].get();
+            params[i] = paramProviders[i].get();
         }
-        return args;
+        return params;
     }
 
-    private static void circularCheck(Key key, Set<Key> depChain) {
-        if (depChain != null && depChain.contains(key)) {
-            throw new FeatherException(String.format("Circular dependency: %s", chainString(depChain, key)));
+    private static void circular(Key key, Set<Key> chain) {
+        if (chain != null && chain.contains(key)) {
+            throw new FeatherException(String.format("Circular dependency: %s", chain(chain, key)));
         }
     }
 
@@ -249,13 +245,12 @@ public class Feather {
         return fields;
     }
 
-    private static String chainString(Set<Key> chain, Key lastKey) {
+    private static String chain(Set<Key> chain, Key lastKey) {
         StringBuilder chainString = new StringBuilder();
         for (Key key : chain) {
             chainString.append(key.toString()).append(" -> ");
         }
-        chainString.append(lastKey.toString());
-        return chainString.toString();
+        return chainString.append(lastKey.toString()).toString();
     }
 
     private static Constructor constructor(Key key) {
