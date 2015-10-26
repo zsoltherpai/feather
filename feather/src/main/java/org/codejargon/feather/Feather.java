@@ -6,10 +6,12 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+// Here be dragons. This code is optimized for small footprint / performance rather than being pretty. Maintenance
+// is no issue in this library due to overall size.
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
-    private final Map<Class, InjectField[]> injectFields = new ConcurrentHashMap<>(0);
+    private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
 
     /**
      * Constructs Feather with the provided configuration modules
@@ -78,11 +80,13 @@ public class Feather {
         if (!injectFields.containsKey(target.getClass())) {
             injectFields.put(target.getClass(), injectFields(target.getClass()));
         }
-        for (InjectField f : injectFields.get(target.getClass())) {
+        for (Object[] f: injectFields.get(target.getClass())) {
+            Field field = (Field) f[0];
+            Key key = (Key) f[2];
             try {
-                f.field.set(target, f.providerType ? provider(f.key) : instance(f.key));
+                field.set(target, (boolean) f[1] ? provider(key) : instance(key));
             } catch (Exception e) {
-                throw new FeatherException(String.format("Can't inject field %s in %s", f.field.getName(), target.getClass().getName()));
+                throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()));
             }
         }
     }
@@ -155,16 +159,15 @@ public class Feather {
             final Key key,
             Class<?>[] parameterClasses,
             Type[] parameterTypes,
-            Annotation[][] parameterAnnotations,
+            Annotation[][] annotations,
             final Set<Key> chain
     ) {
         Provider<?>[] providers = new Provider<?>[parameterTypes.length];
         for (int i = 0; i < parameterTypes.length; ++i) {
-            Type parameterType = parameterTypes[i];
             Class<?> parameterClass = parameterClasses[i];
-            Annotation qualifier = qualifier(parameterAnnotations[i]);
+            Annotation qualifier = qualifier(annotations[i]);
             Class<?> providerType = Provider.class.equals(parameterClass) ?
-                    (Class<?>) ((ParameterizedType) parameterType).getActualTypeArguments()[0] :
+                    (Class<?>) ((ParameterizedType) parameterTypes[i]).getActualTypeArguments()[0] :
                     null;
             if (providerType == null) {
                 final Key newKey = Key.of(parameterClass, qualifier);
@@ -203,44 +206,44 @@ public class Feather {
         }
     }
 
-    private static Set<Key> append(Set<Key> set, Key newItem) {
+    private static Set<Key> append(Set<Key> set, Key newKey) {
         if (set != null && !set.isEmpty()) {
             Set<Key> appended = new LinkedHashSet<>(set);
-            appended.add(newItem);
+            appended.add(newKey);
             return appended;
         } else {
-            return Collections.singleton(newItem);
+            return Collections.singleton(newKey);
         }
     }
 
-    private static InjectField[] injectFields(Class<?> target) {
+    private static Object[][] injectFields(Class<?> target) {
         Set<Field> fields = fields(target);
-        InjectField[] injectFields = new InjectField[fields.size()];
+        Object[][] fs = new Object[fields.size()][];
         int i = 0;
         for (Field f : fields) {
             Class<?> providerType = f.getType().equals(Provider.class) ?
                     (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0] :
                     null;
-            injectFields[i++] = new InjectField(
+            fs[i++] = new Object[]{
                     f,
                     providerType != null,
                     Key.of(providerType != null ? providerType : f.getType(), qualifier(f.getAnnotations()))
-            );
+            };
         }
-        return injectFields;
+        return fs;
     }
 
-    private static Set<Field> fields(Class<?> target) {
-        Class<?> currentClass = target;
+    private static Set<Field> fields(Class<?> type) {
+        Class<?> current = type;
         Set<Field> fields = new HashSet<>();
-        while (!currentClass.equals(Object.class)) {
-            for (Field field : currentClass.getDeclaredFields()) {
+        while (!current.equals(Object.class)) {
+            for (Field field : current.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
                     field.setAccessible(true);
                     fields.add(field);
                 }
             }
-            currentClass = currentClass.getSuperclass();
+            current = current.getSuperclass();
         }
         return fields;
     }
@@ -276,12 +279,12 @@ public class Feather {
         }
     }
 
-    private static Set<Method> providers(Class<?> clazz) {
-        Class<?> current = clazz;
+    private static Set<Method> providers(Class<?> type) {
+        Class<?> current = type;
         Set<Method> providers = new HashSet<>();
         while (!current.equals(Object.class)) {
             for (Method method : current.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(Provides.class) && (clazz.equals(current) || !providerInSubClass(method, providers))) {
+                if (method.isAnnotationPresent(Provides.class) && (type.equals(current) || !providerInSubClass(method, providers))) {
                     method.setAccessible(true);
                     providers.add(method);
                 }
