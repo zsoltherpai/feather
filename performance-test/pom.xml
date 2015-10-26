@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.codejargon.feather</groupId>
         <artifactId>feather-parent</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>feather-perftest</artifactId>
@@ -53,9 +53,6 @@
             <version>1.2.17</version>
             <scope>runtime</scope>
         </dependency>
-
-
-
     </dependencies>
     <build>
         <plugins>
