@@ -214,10 +214,10 @@ class ExampleActivity extends Activity {
   }
 }
 ```
-For best possible performance, dependencies should be immutable and @Singleton.
+For best possible performance, dependencies should be immutable and @Singleton. See full example in android-test.
 #####Footprint, performance, comparison#####
 Small footprint and high performance is in Feather's main focus.
-- compared to [Guice] (https://github.com/google/guice "Guice"): 1/40 the library size, ~10x startup speed
+- compared to [Guice] (https://github.com/google/guice "Guice"): 1/50 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size (of just Dagger's run-time part), ~2x startup speed
 
 Note: startup means creation of the container and instantiation of an object graph. Executable comparison including Spring, 
