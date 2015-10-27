@@ -6,22 +6,20 @@ import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Here be dragons: this code is optimized for small footprint / performance rather than being pretty.
-// Partly as an experiment to see the results of extreme minimalism. Maintenance is a non-issue with this library due it's size.
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
     private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
 
     /**
-     * Constructs Feather with the provided configuration modules
+     * Constructs Feather with configuration modules
      */
     public static Feather with(Object... modules) {
         return new Feather(Arrays.asList(modules));
     }
 
     /**
-     * Constructs Feather with the provided configuration modules
+     * Constructs Feather with configuration modules
      */
     public static Feather with(Iterable<?> modules) {
         return new Feather(modules);
@@ -46,35 +44,35 @@ public class Feather {
     }
 
     /**
-     * @return an instance of the requested type
+     * @return an instance of type
      */
     public <T> T instance(Class<T> type) {
         return provider(Key.of(type), null).get();
     }
 
     /**
-     * @return an instance of the requested key (type/qualifier annotation)
+     * @return instance specified by key (type and qualifier)
      */
     public <T> T instance(Key<T> key) {
         return provider(key, null).get();
     }
 
     /**
-     * @return a provider of the requested type
+     * @return provider of type
      */
     public <T> Provider<T> provider(Class<T> type) {
         return provider(Key.of(type), null);
     }
 
     /**
-     * @return a provider of the requested key (type, name/qualifier annotation)
+     * @return provider of key (type, qualifier)
      */
     public <T> Provider<T> provider(Key<T> key) {
         return provider(key, null);
     }
 
     /**
-     * Injects fields to the target object (non-transitive)
+     * Injects fields to the target object
      */
     public void injectFields(Object target) {
         if (!injectFields.containsKey(target.getClass())) {
