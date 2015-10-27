@@ -7,7 +7,7 @@ and is quite efficient too (see comparison section below).
 <dependency>
     <groupId>org.codejargon.feather</groupId>
     <artifactId>feather</artifactId>
-    <version>0.9</version>
+    <version>1.0</version>
 </dependency>
 ```
 [Javadoc](http://zsoltherpai.github.io/feather/apidocs "Javadoc") for Feather
