@@ -260,7 +260,7 @@ public class Feather {
                 } else {
                     throw new FeatherException(String.format("%s has multiple @Inject constructors", key.type));
                 }
-            } else if (c.getParameters().length == 0) {
+            } else if (c.getParameterTypes().length == 0) {
                 noarg = c;
             }
         }
