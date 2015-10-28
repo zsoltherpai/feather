@@ -1,3 +1,332 @@
+<!DOCTYPE html>
 <html>
-<head>Javadoc</head>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Feather : Lightweight dependency injection for Java and Android (JSR-330)">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Feather</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/zsoltherpai/feather">View on GitHub</a>
+
+          <h1 id="project_title">Feather</h1>
+          <h2 id="project_tagline">Lightweight dependency injection for Java and Android (JSR-330)</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/zsoltherpai/feather/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/zsoltherpai/feather/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h4>
+<a id="about-feather" class="anchor" href="#about-feather" aria-hidden="true"><span class="octicon octicon-link"></span></a>About Feather</h4>
+
+<p>Feather is an ultra-lightweight dependency injection (<a href="https://jcp.org/en/jsr/detail?id=330" title="JSR-330">JSR-330</a>)
+library for Java and Android. Dependency injection frameworks are often perceived as "magical" and complex. 
+Feather - with just a few hundred lines of code - is probably the easiest, tiniest, most obvious one, 
+and is quite efficient too (see comparison section below).</p>
+
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;org.codejargon.feather&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;feather&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.0&lt;/<span class="pl-ent">version</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+
+<p><a href="http://zsoltherpai.github.io/feather/apidocs" title="Javadoc">Javadoc</a> for Feather</p>
+
+<h5>
+<a id="usage---code-examples" class="anchor" href="#usage---code-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage - code examples</h5>
+
+<h6>
+<a id="create-feather-the-injector" class="anchor" href="#create-feather-the-injector" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Feather (the injector)</h6>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">Feather</span> feather <span class="pl-k">=</span> <span class="pl-smi">Feather</span><span class="pl-k">.</span>with();</pre></div>
+
+<p>An application typically needs a single Feather instance.</p>
+
+<h6>
+<a id="instantiating-dependencies" class="anchor" href="#instantiating-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instantiating dependencies</h6>
+
+<p>Dependencies with <a href="https://github.com/Inject" class="user-mention">@Inject</a> constructor or a default constructor can be injected by Feather without the need for
+any configuration. Eg:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">A</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">A</span>(<span class="pl-smi">B</span> <span class="pl-v">b</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">B</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">B</span>(<span class="pl-smi">C</span> <span class="pl-v">c</span>, <span class="pl-smi">D</span> <span class="pl-v">d</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">C</span> {}
+
+@<span class="pl-smi">Singleton</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">D</span> {
+    <span class="pl-c">// something expensive or other reasons for being singleton</span>
+}</pre></div>
+
+<p>Creating an instance of A:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">A</span> a <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">A</span><span class="pl-k">.</span>class);</pre></div>
+
+<h6>
+<a id="providing-additional-dependencies-to-feather" class="anchor" href="#providing-additional-dependencies-to-feather" aria-hidden="true"><span class="octicon octicon-link"></span></a>Providing additional dependencies to Feather</h6>
+
+<p>When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration
+modules providing those dependencies:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">MyModule</span> {
+    <span class="pl-k">@Provides</span>
+    <span class="pl-k">@Singleton</span> <span class="pl-c">// an app will probably need a single instance </span>
+    <span class="pl-smi">DataSource</span> <span class="pl-en">ds</span>() {
+        <span class="pl-smi">DataSource</span> dataSource <span class="pl-k">=</span> <span class="pl-c">// instantiate some DataSource</span>
+        <span class="pl-k">return</span> dataSource;
+    }
+}</pre></div>
+
+<p>Setting up Feather with module(s):</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">Feather</span> feather <span class="pl-k">=</span> <span class="pl-smi">Feather</span><span class="pl-k">.</span>with(<span class="pl-k">new</span> <span class="pl-smi">MyModule</span>());</pre></div>
+
+<p>The DataSource dependency will now be available for injection:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">MyApp</span> {
+    <span class="pl-k">@Inject</span> 
+    <span class="pl-k">public</span> <span class="pl-en">MyApp</span>(<span class="pl-smi">DataSource</span> <span class="pl-v">ds</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}</pre></div>
+
+<p>Feather injects dependencies to <a href="https://github.com/Provides" class="user-mention">@Provides</a> methods aguments. This is particularly useful for binding an implementation
+to an interface:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-en">Foo</span> {}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">FooBar</span> <span class="pl-k">implements</span> <span class="pl-e">Foo</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">FooBar</span>(<span class="pl-smi">X</span> <span class="pl-v">x</span>, <span class="pl-smi">Y</span> <span class="pl-v">y</span>, <span class="pl-smi">Z</span> <span class="pl-v">z</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">MyModule</span> {
+    <span class="pl-k">@Provides</span>
+    <span class="pl-smi">Foo</span> <span class="pl-en">foo</span>(<span class="pl-smi">FooBar</span> <span class="pl-v">fooBar</span>) {
+        <span class="pl-k">return</span> fooBar;
+    }
+}
+
+<span class="pl-c">// injecting an instance of Foo interface will work using the MyModule above:</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">A</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">A</span>(<span class="pl-smi">Foo</span> <span class="pl-v">foo</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}</pre></div>
+
+<p>Note that the <a href="https://github.com/Provides" class="user-mention">@Provides</a> method serves just as a binding declaration here, no manual instantiation needed</p>
+
+<h6>
+<a id="qualifiers" class="anchor" href="#qualifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Qualifiers</h6>
+
+<p>Feather supports Qualifiers (<a href="https://github.com/Named" class="user-mention">@Named</a> or custom qualifiers)</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">MyModule</span> {
+    <span class="pl-k">@Provides</span>
+    <span class="pl-k">@Named</span>(<span class="pl-s"><span class="pl-pds">"</span>greeting<span class="pl-pds">"</span></span>)
+    <span class="pl-smi">String</span> <span class="pl-en">greeting</span>() {
+        <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">"</span>hi<span class="pl-pds">"</span></span>;
+    }
+
+    <span class="pl-k">@Provides</span>
+    <span class="pl-k">@SomeQualifier</span>
+    <span class="pl-smi">Foo</span> <span class="pl-en">some</span>(<span class="pl-smi">FooSome</span> <span class="pl-v">fooSome</span>) {
+        <span class="pl-k">return</span> fooSome;
+    };
+}</pre></div>
+
+<p>Injecting:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">A</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">A</span>(<span class="pl-k">@SomeQualifier</span> <span class="pl-smi">Foo</span> <span class="pl-v">foo</span>, <span class="pl-k">@Named</span>(<span class="pl-s"><span class="pl-pds">"</span>greeting<span class="pl-pds">"</span></span>) <span class="pl-smi">String</span> <span class="pl-v">greet</span>) {
+        <span class="pl-c">// ...</span>
+    }
+}</pre></div>
+
+<p>Or directly from feather:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">String</span> greet <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">String</span><span class="pl-k">.</span>class, <span class="pl-s"><span class="pl-pds">"</span>greeting<span class="pl-pds">"</span></span>);
+<span class="pl-smi">Foo</span> foo <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">Key</span><span class="pl-k">.</span>of(<span class="pl-smi">Foo</span><span class="pl-k">.</span>class, <span class="pl-smi">SomeQualifier</span><span class="pl-k">.</span>class));</pre></div>
+
+<h6>
+<a id="provider-injection" class="anchor" href="#provider-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Provider injection</h6>
+
+<p>Feather injects <a href="https://docs.oracle.com/javaee/6/api/javax/inject/Provider.html">Provider</a>s  to facilitate lazy loading or circular dependencies:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">A</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">public</span> <span class="pl-en">A</span>(<span class="pl-k">Provider&lt;<span class="pl-smi">B</span>&gt;</span> <span class="pl-v">b</span>) {
+        <span class="pl-smi">B</span> b <span class="pl-k">=</span> b<span class="pl-k">.</span>get(); <span class="pl-c">// fetch a new instance when needed</span>
+    }
+}</pre></div>
+
+<p>Or getting a Provider directly from Feather:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">Provider&lt;<span class="pl-smi">B</span>&gt;</span> bProvider <span class="pl-k">=</span> feather<span class="pl-k">.</span>provider(<span class="pl-smi">B</span><span class="pl-k">.</span>class);</pre></div>
+
+<h6>
+<a id="override-modules" class="anchor" href="#override-modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Override modules</h6>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Module</span> {
+    <span class="pl-k">@Provides</span>
+    <span class="pl-smi">DataSource</span> <span class="pl-en">dataSource</span>() {
+        <span class="pl-c">// return a mysql datasource</span>
+    }
+
+    <span class="pl-c">// other @Provides methods</span>
+}
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">TestModule</span> <span class="pl-k">extends</span> <span class="pl-e">Module</span> {
+    <span class="pl-k">@Override</span>
+    <span class="pl-k">@Provides</span>
+    <span class="pl-smi">DataSource</span> <span class="pl-en">dataSource</span>() {
+        <span class="pl-c">// return a h2 datasource</span>
+    }
+}</pre></div>
+
+<h6>
+<a id="field-injection" class="anchor" href="#field-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Field injection</h6>
+
+<p>Feather supports Constructor injection only when injecting to a dependency graph. It inject fields also if it's
+explicitly triggered for a target object - eg to facilitate testing. A simple example with a junit test:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">AUnitTest</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Foo</span> foo;
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Bar</span> bar;
+
+    <span class="pl-k">@Before</span>
+    <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">setUp</span>() {
+        <span class="pl-smi">Feather</span> feather <span class="pl-k">=</span> <span class="pl-c">// obtain a Feather instance</span>
+        feather<span class="pl-k">.</span>injectFields(<span class="pl-v">this</span>);
+    }
+}</pre></div>
+
+<h6>
+<a id="method-injection" class="anchor" href="#method-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Method injection</h6>
+
+<p>Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).</p>
+
+<h5>
+<a id="android-example" class="anchor" href="#android-example" aria-hidden="true"><span class="octicon octicon-link"></span></a>Android example</h5>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">class</span> <span class="pl-en">ExampleApplication</span> <span class="pl-k">extends</span> <span class="pl-e">Application</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">Feather</span> feather;
+
+    <span class="pl-k">@Override</span> <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onCreate</span>() {
+        <span class="pl-c">// ...</span>
+        feather <span class="pl-k">=</span> <span class="pl-smi">Feather</span><span class="pl-k">.</span>with( <span class="pl-c">/* modules if needed*/</span> );
+    }
+
+    <span class="pl-k">public</span> <span class="pl-smi">Feather</span> <span class="pl-en">feather</span>() {
+        <span class="pl-k">return</span> feather;
+    }
+}
+
+<span class="pl-k">class</span> <span class="pl-en">ExampleActivity</span> <span class="pl-k">extends</span> <span class="pl-e">Activity</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Foo</span> foo;
+    <span class="pl-k">@Inject</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Bar</span> bar;
+
+  <span class="pl-k">@Override</span> <span class="pl-k">public</span> <span class="pl-k">void</span> <span class="pl-en">onCreate</span>(<span class="pl-smi">Bundle</span> <span class="pl-v">savedState</span>) {
+    <span class="pl-c">// ...</span>
+    ((<span class="pl-smi">ExampleApplication</span>) getApplication())
+        .feather()
+            .injectFields(<span class="pl-v">this</span>);
+  }
+}</pre></div>
+
+<p>For best possible performance, dependencies should be immutable and <a href="https://github.com/Singleton" class="user-mention">@Singleton</a>. See full example in android-test.</p>
+
+<h5>
+<a id="footprint-performance-comparison" class="anchor" href="#footprint-performance-comparison" aria-hidden="true"><span class="octicon octicon-link"></span></a>Footprint, performance, comparison</h5>
+
+<p>Small footprint and high performance is in Feather's main focus.</p>
+
+<ul>
+<li>compared to <a href="https://github.com/google/guice" title="Guice">Guice</a>: 1/50 the library size, ~10x startup speed</li>
+<li>compared to <a href="http://square.github.io/dagger">Dagger</a>: 1/4 the library size (of just Dagger's run-time part), ~2x startup speed</li>
+</ul>
+
+<p>Note: startup means creation of the container and instantiation of an object graph. Executable comparison including Spring, 
+Guice, Dagger, PicoContainer is in 'performance-test' module.</p>
+
+<h5>
+<a id="how-it-works-under-the-hood" class="anchor" href="#how-it-works-under-the-hood" aria-hidden="true"><span class="octicon octicon-link"></span></a>How it works under the hood</h5>
+
+<p>Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
+costly involved.</p>
+
+<p>A simple example with some explanation:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-k">class</span> <span class="pl-en">A</span> {
+    <span class="pl-k">@Inject</span>
+    <span class="pl-c1">A</span>(<span class="pl-smi">B</span> b) {
+
+    }
+}
+
+<span class="pl-k">class</span> <span class="pl-en">B</span> {
+
+}</pre></div>
+
+<p>Without the use of Feather, class A could be instantiated with the following factory methods:</p>
+
+<div class="highlight highlight-source-java"><pre><span class="pl-smi">A</span> a() {
+    <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">A</span>(b());
+}
+
+<span class="pl-smi">B</span> b() {
+    <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">B</span>();
+}</pre></div>
+
+<p>Feather avoids the need for writing such factories - by doing the same thing internally: When an instance of A is injected,
+Feather calls A's constructor with the necessary arguments - an instance of B. That instance of B is created the same way 
+- a simple recursion, this time with no further dependencies - and the instance of A is created.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Feather maintained by <a href="https://github.com/zsoltherpai">zsoltherpai</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
 </html>
