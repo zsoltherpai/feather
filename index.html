@@ -20,11 +20,11 @@
 
           <h1 id="project_title">Feather</h1>
           <h2 id="project_tagline">Lightweight dependency injection for Java and Android (JSR-330)</h2>
-
-            <section id="downloads">
+			<!-- <section id="downloads">
               <a class="zip_download_link" href="https://github.com/zsoltherpai/feather/zipball/master">Download this project as a .zip file</a>
               <a class="tar_download_link" href="https://github.com/zsoltherpai/feather/tarball/master">Download this project as a tar.gz file</a>
             </section>
+			-->
         </header>
     </div>
 
@@ -37,7 +37,7 @@
 <p>Feather is an ultra-lightweight dependency injection (<a href="https://jcp.org/en/jsr/detail?id=330" title="JSR-330">JSR-330</a>)
 library for Java and Android. Dependency injection frameworks are often perceived as "magical" and complex. 
 Feather - with just a few hundred lines of code - is probably the easiest, tiniest, most obvious one, 
-and is quite efficient too (see comparison section below).</p>
+and is quite efficient too (see <a href="#footprint-performance-comparison">comparison section</a> below).</p>
 
 <div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">dependency</span>&gt;
     &lt;<span class="pl-ent">groupId</span>&gt;org.codejargon.feather&lt;/<span class="pl-ent">groupId</span>&gt;
@@ -47,17 +47,17 @@ and is quite efficient too (see comparison section below).</p>
 
 <p><a href="http://zsoltherpai.github.io/feather/apidocs" title="Javadoc">Javadoc</a> for Feather</p>
 
-<h5>
+<h4>
 <a id="usage---code-examples" class="anchor" href="#usage---code-examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage - code examples</h5>
 
-<h6>
+<h5>
 <a id="create-feather-the-injector" class="anchor" href="#create-feather-the-injector" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Feather (the injector)</h6>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-smi">Feather</span> feather <span class="pl-k">=</span> <span class="pl-smi">Feather</span><span class="pl-k">.</span>with();</pre></div>
 
 <p>An application typically needs a single Feather instance.</p>
 
-<h6>
+<h5>
 <a id="instantiating-dependencies" class="anchor" href="#instantiating-dependencies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instantiating dependencies</h6>
 
 <p>Dependencies with <a href="https://github.com/Inject" class="user-mention">@Inject</a> constructor or a default constructor can be injected by Feather without the need for
@@ -88,7 +88,7 @@ any configuration. Eg:</p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-smi">A</span> a <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">A</span><span class="pl-k">.</span>class);</pre></div>
 
-<h6>
+<h5>
 <a id="providing-additional-dependencies-to-feather" class="anchor" href="#providing-additional-dependencies-to-feather" aria-hidden="true"><span class="octicon octicon-link"></span></a>Providing additional dependencies to Feather</h6>
 
 <p>When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration
@@ -145,7 +145,7 @@ to an interface:</p>
 
 <p>Note that the <a href="https://github.com/Provides" class="user-mention">@Provides</a> method serves just as a binding declaration here, no manual instantiation needed</p>
 
-<h6>
+<h5>
 <a id="qualifiers" class="anchor" href="#qualifiers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Qualifiers</h6>
 
 <p>Feather supports Qualifiers (<a href="https://github.com/Named" class="user-mention">@Named</a> or custom qualifiers)</p>
@@ -178,7 +178,7 @@ to an interface:</p>
 <div class="highlight highlight-source-java"><pre><span class="pl-smi">String</span> greet <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">String</span><span class="pl-k">.</span>class, <span class="pl-s"><span class="pl-pds">"</span>greeting<span class="pl-pds">"</span></span>);
 <span class="pl-smi">Foo</span> foo <span class="pl-k">=</span> feather<span class="pl-k">.</span>instance(<span class="pl-smi">Key</span><span class="pl-k">.</span>of(<span class="pl-smi">Foo</span><span class="pl-k">.</span>class, <span class="pl-smi">SomeQualifier</span><span class="pl-k">.</span>class));</pre></div>
 
-<h6>
+<h5>
 <a id="provider-injection" class="anchor" href="#provider-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Provider injection</h6>
 
 <p>Feather injects <a href="https://docs.oracle.com/javaee/6/api/javax/inject/Provider.html">Provider</a>s  to facilitate lazy loading or circular dependencies:</p>
@@ -194,7 +194,7 @@ to an interface:</p>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-k">Provider&lt;<span class="pl-smi">B</span>&gt;</span> bProvider <span class="pl-k">=</span> feather<span class="pl-k">.</span>provider(<span class="pl-smi">B</span><span class="pl-k">.</span>class);</pre></div>
 
-<h6>
+<h5>
 <a id="override-modules" class="anchor" href="#override-modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>Override modules</h6>
 
 <div class="highlight highlight-source-java"><pre><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-en">Module</span> {
@@ -214,7 +214,7 @@ to an interface:</p>
     }
 }</pre></div>
 
-<h6>
+<h5>
 <a id="field-injection" class="anchor" href="#field-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Field injection</h6>
 
 <p>Feather supports Constructor injection only when injecting to a dependency graph. It inject fields also if it's
@@ -233,7 +233,7 @@ explicitly triggered for a target object - eg to facilitate testing. A simple ex
     }
 }</pre></div>
 
-<h6>
+<h5>
 <a id="method-injection" class="anchor" href="#method-injection" aria-hidden="true"><span class="octicon octicon-link"></span></a>Method injection</h6>
 
 <p>Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).</p>
@@ -268,7 +268,7 @@ explicitly triggered for a target object - eg to facilitate testing. A simple ex
   }
 }</pre></div>
 
-<p>For best possible performance, dependencies should be immutable and <a href="https://github.com/Singleton" class="user-mention">@Singleton</a>. See full example in android-test.</p>
+<p>For best possible performance, dependencies should be immutable and <a href="https://github.com/Singleton" class="user-mention">@Singleton</a>. See full example in android-test on <a href="https://github.com/zsoltherpai/feather">GitHub</a>.</p>
 
 <h5>
 <a id="footprint-performance-comparison" class="anchor" href="#footprint-performance-comparison" aria-hidden="true"><span class="octicon octicon-link"></span></a>Footprint, performance, comparison</h5>
@@ -276,12 +276,12 @@ explicitly triggered for a target object - eg to facilitate testing. A simple ex
 <p>Small footprint and high performance is in Feather's main focus.</p>
 
 <ul>
-<li>compared to <a href="https://github.com/google/guice" title="Guice">Guice</a>: 1/50 the library size, ~10x startup speed</li>
-<li>compared to <a href="http://square.github.io/dagger">Dagger</a>: 1/4 the library size (of just Dagger's run-time part), ~2x startup speed</li>
+<li>compared to <a href="https://github.com/google/guice" title="Guice">Guice</a>: 1/50 the library size, about 10x startup speed</li>
+<li>compared to <a href="http://square.github.io/dagger">Dagger</a>: 1/4 the library size (of just Dagger's run-time part), about 2x startup speed</li>
 </ul>
 
 <p>Note: startup means creation of the container and instantiation of an object graph. Executable comparison including Spring, 
-Guice, Dagger, PicoContainer is in 'performance-test' module.</p>
+Guice, Dagger, PicoContainer is in 'performance-test' module on <a href="https://github.com/zsoltherpai/feather">GitHub</a>.</p>
 
 <h5>
 <a id="how-it-works-under-the-hood" class="anchor" href="#how-it-works-under-the-hood" aria-hidden="true"><span class="octicon octicon-link"></span></a>How it works under the hood</h5>
