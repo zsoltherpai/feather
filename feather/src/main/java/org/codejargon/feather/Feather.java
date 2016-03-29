@@ -1,5 +1,6 @@
 package org.codejargon.feather;
 
+import javax.annotation.PostConstruct;
 import javax.inject.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
@@ -10,22 +11,40 @@ public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
     private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
+    private final boolean autoInjectFields;
 
     /**
      * Constructs Feather with configuration modules
      */
     public static Feather with(Object... modules) {
-        return new Feather(Arrays.asList(modules));
+        return new Feather(false, Arrays.asList(modules));
+    }
+
+    /**
+     * Constructs Feather with configuration modules.
+     * Will auto-inject fields and call @PostConstruct on target.
+     */
+    public static Feather withAutoInjectFields(Object... modules) {
+        return new Feather(true, Arrays.asList(modules));
     }
 
     /**
      * Constructs Feather with configuration modules
      */
     public static Feather with(Iterable<?> modules) {
-        return new Feather(modules);
+        return new Feather(false, modules);
     }
 
-    private Feather(Iterable<?> modules) {
+    /**
+     * Constructs Feather with configuration modules
+     * Will auto-inject fields and call @PostConstruct on target.
+     */
+    public static Feather withAutoInjectFields(Iterable<?> modules) {
+        return new Feather(true, modules);
+    }
+
+    private Feather(boolean autoInjectFields, Iterable<?> modules) {
+    	this.autoInjectFields = autoInjectFields;
         providers.put(Key.of(Feather.class), new Provider() {
                     @Override
                     public Object get() {
@@ -84,10 +103,33 @@ public class Feather {
             try {
                 field.set(target, (boolean) f[1] ? provider(key) : instance(key));
             } catch (Exception e) {
-                throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()));
+                throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()), e);
             }
         }
+    	callPostConstructMethods(target);
     }
+    
+	private void callPostConstructMethods(Object target) {
+		List<Method> postConstructMethods = new ArrayList<>();
+		for (Class<?> clazz = target.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
+		    for (Method method : Arrays.asList(clazz.getDeclaredMethods())) {
+		        if (method.isAnnotationPresent(PostConstruct.class)) {
+		            postConstructMethods.add(method);
+		        }
+		    }
+		}
+			
+		Collections.reverse(postConstructMethods);
+		for (Method m : postConstructMethods) {
+			try {
+				m.setAccessible(true);
+				m.invoke(target);
+			} catch (Exception e) {
+				throw new FeatherException(String.format("Can't call @PostConstruct method %s:%s", m.getClass(), m.getName()), e);
+			}
+		}
+	}
+
 
     @SuppressWarnings("unchecked")
     private <T> Provider<T> provider(final Key<T> key, Set<Key> chain) {
@@ -98,7 +140,11 @@ public class Feather {
                         @Override
                         public Object get() {
                             try {
-                                return constructor.newInstance(params(paramProviders));
+                                Object o = constructor.newInstance(params(paramProviders));
+                                if (autoInjectFields) {
+                                	injectFields(o);
+                                }
+								return o;
                             } catch (Exception e) {
                                 throw new FeatherException(String.format("Can't instantiate %s", key.toString()), e);
                             }
@@ -215,13 +261,14 @@ public class Feather {
         Object[][] fs = new Object[fields.size()][];
         int i = 0;
         for (Field f : fields) {
+        			
             Class<?> providerType = f.getType().equals(Provider.class) ?
                     (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0] :
                     null;
             fs[i++] = new Object[]{
                     f,
                     providerType != null,
-                    Key.of(providerType != null ? providerType : f.getType(), qualifier(f.getAnnotations()))
+                    Key.of((Class<?>)(providerType != null ? providerType : f.getType()), qualifier(f.getAnnotations()))
             };
         }
         return fs;
