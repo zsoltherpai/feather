@@ -250,7 +250,8 @@ B b() {
     return new B();
 }
 ```
-Feather avoids the need for writing such factories - by doing the same thing internally: When an instance of A is injected,
-Feather calls A's constructor with the necessary arguments - an instance of B. That instance of B is created the same way 
-\- a simple recursion, this time with no further dependencies \- and the instance of A is created.
+Most of the information in these factories are redundant and they tend to be hot spots for changes and
+sources for merge hells. Feather avoids the need for writing such factories - by doing the same thing
+internally: When an instance of A is injected, Feather calls A's constructor with the necessary arguments - an
+instance of B. That instance of B is created the same way \- a simple recursion, this time with no further dependencies \- and the instance of A is created.
 
