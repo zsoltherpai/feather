@@ -84,7 +84,7 @@ public class Feather {
             try {
                 field.set(target, (boolean) f[1] ? provider(key) : instance(key));
             } catch (Exception e) {
-                throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()));
+                throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()), e);
             }
         }
     }
