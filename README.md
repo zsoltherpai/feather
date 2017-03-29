@@ -1,4 +1,4 @@
-####About Feather####
+#### About Feather
 [Feather](http://zsoltherpai.github.io/feather) is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
 library for Java and Android. Dependency injection frameworks are often perceived as "magical" and complex. 
 Feather - with just a few hundred lines of code - is probably the easiest, tiniest, most obvious one, 
@@ -11,14 +11,14 @@ and is quite efficient too (see comparison section below).
 </dependency>
 ```
 [Javadoc](http://zsoltherpai.github.io/feather/apidocs "Javadoc") for Feather
-#####Usage - code examples#####
-######Create Feather (the injector)######
+##### Usage - code examples
+###### Create Feather (the injector)
 ```java
 Feather feather = Feather.with();
 ```
 An application typically needs a single Feather instance.
 
-######Instantiating dependencies######
+###### Instantiating dependencies
 Dependencies with @Inject constructor or a default constructor can be injected by Feather without the need for
 any configuration. Eg:
 ```java
@@ -47,7 +47,7 @@ Creating an instance of A:
 ```java
 A a = feather.instance(A.class);
 ```
-######Providing additional dependencies to Feather######
+###### Providing additional dependencies to Feather
 When injecting an interface, a 3rd party class or an object needing custom instantiation, Feather relies on configuration
 modules providing those dependencies:
 ```java
@@ -101,7 +101,7 @@ public class A {
 }
 ```
 Note that the @Provides method serves just as a binding declaration here, no manual instantiation needed
-######Qualifiers######
+###### Qualifiers
 Feather supports Qualifiers (@Named or custom qualifiers)
 ```java
 public class MyModule {
@@ -132,7 +132,7 @@ Or directly from feather:
 String greet = feather.instance(String.class, "greeting");
 Foo foo = feather.instance(Key.of(Foo.class, SomeQualifier.class));
 ```
-######Provider injection######
+###### Provider injection
 Feather injects [Provider](https://docs.oracle.com/javaee/6/api/javax/inject/Provider.html)s  to facilitate lazy loading or circular dependencies:
 ```java
 public class A {
@@ -146,7 +146,7 @@ Or getting a Provider directly from Feather:
 ```java
 Provider<B> bProvider = feather.provider(B.class);
 ```
-######Override modules######
+###### Override modules
 ```java
 public class Module {
     @Provides
@@ -165,7 +165,7 @@ public class TestModule extends Module {
     }
 }
 ```
-######Field injection######
+###### Field injection
 Feather supports Constructor injection only when injecting to a dependency graph. It inject fields also if it's
 explicitly triggered for a target object - eg to facilitate testing. A simple example with a junit test:
 ```java
@@ -182,10 +182,10 @@ public class AUnitTest {
     }
 }
 ```
-######Method injection######
+###### Method injection
 Not supported. The need for it can be generally avoided by a Provider / solid design (favoring immutability, injection via constructor).
 
-#####Android example#####
+##### Android example
 ```java
 class ExampleApplication extends Application {
     private Feather feather;
@@ -215,7 +215,7 @@ class ExampleActivity extends Activity {
 }
 ```
 For best possible performance, dependencies should be immutable and @Singleton. See full example in android-test.
-#####Footprint, performance, comparison#####
+##### Footprint, performance, comparison
 Small footprint and high performance is in Feather's main focus.
 - compared to [Guice] (https://github.com/google/guice "Guice"): 1/50 the library size, ~10x startup speed
 - compared to [Dagger](http://square.github.io/dagger): 1/4 the library size (of just Dagger's run-time part), ~2x startup speed
@@ -223,7 +223,7 @@ Small footprint and high performance is in Feather's main focus.
 Note: startup means creation of the container and instantiation of an object graph. Executable comparison including Spring, 
 Guice, Dagger, PicoContainer is in 'performance-test' module.
 
-#####How it works under the hood#####
+##### How it works under the hood
 Feather is based on optimal use of reflection to provide dependencies. No code generating, classpath scanning, proxying or anything
 costly involved.
 
