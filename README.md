@@ -255,3 +255,14 @@ sources for merge hells. Feather avoids the need for writing such factories - by
 internally: When an instance of A is injected, Feather calls A's constructor with the necessary arguments - an
 instance of B. That instance of B is created the same way \- a simple recursion, this time with no further dependencies \- and the instance of A is created.
 
+##### ProGuard
+If you are using ProGuard in your project add the following lines to your configuration file:
+```
+#feather
+-keepclassmembers,allowobfuscation class * {
+    @javax.inject.* *;
+    <init>();
+}
+-keep class org.codejargon.feather.* { *; }
+-keep class javax.inject.* { *; }
+```
