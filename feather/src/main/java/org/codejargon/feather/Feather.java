@@ -26,10 +26,10 @@ public class Feather {
     }
 
     private Feather(Iterable<?> modules) {
-        providers.put(Key.of(Feather.class), new Provider() {
+        providers.put(Key.of(Feather.class), new Provider<Feather>() {
                     @Override
-                    public Object get() {
-                        return this;
+                    public Feather get() {
+                        return Feather.this;
                     }
                 }
         );
