@@ -1,5 +1,7 @@
-#### About Feather
 [![Build Status](https://travis-ci.org/ghacupha/feather.svg?branch=master)](https://travis-ci.org/ghacupha/feather)
+
+#### About Feather
+
 [Feather](http://zsoltherpai.github.io/feather) is an ultra-lightweight dependency injection ([JSR-330](https://jcp.org/en/jsr/detail?id=330 "JSR-330"))
 library for Java and Android. Dependency injection frameworks are often perceived as "magical" and complex. 
 Feather - with just a few hundred lines of code - is probably the easiest, tiniest, most obvious one, 
