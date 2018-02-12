@@ -1,0 +1,14 @@
+###########
+# PROJECT #
+###########
+*.settings/
+*.project
+*.classpath
+*log
+**/target/
+*.iml
+
+########
+# IDEA #
+########
+/.idea/*

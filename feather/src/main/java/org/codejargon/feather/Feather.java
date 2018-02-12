@@ -1,15 +1,28 @@
 package org.codejargon.feather;
 
-import javax.inject.*;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.inject.Inject;
+import javax.inject.Provider;
+import javax.inject.Qualifier;
+import javax.inject.Singleton;
+
 public class Feather {
-    private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
-    private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
-    private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
+    private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<Key, Provider<?>>();
+    private final Map<Key, Object> singletons = new ConcurrentHashMap<Key, Object>();
+    private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<Class, Object[][]>(0);
 
     /**
      * Constructs Feather with configuration modules
@@ -82,7 +95,7 @@ public class Feather {
             Field field = (Field) f[0];
             Key key = (Key) f[2];
             try {
-                field.set(target, (boolean) f[1] ? provider(key) : instance(key));
+                field.set(target, ((Boolean) f[1]).booleanValue() ? provider(key) : instance(key));
             } catch (Exception e) {
                 throw new FeatherException(String.format("Can't inject field %s in %s", field.getName(), target.getClass().getName()));
             }
@@ -202,7 +215,7 @@ public class Feather {
 
     private static Set<Key> append(Set<Key> set, Key newKey) {
         if (set != null && !set.isEmpty()) {
-            Set<Key> appended = new LinkedHashSet<>(set);
+            Set<Key> appended = new LinkedHashSet<Key>(set);
             appended.add(newKey);
             return appended;
         } else {
@@ -229,7 +242,7 @@ public class Feather {
 
     private static Set<Field> fields(Class<?> type) {
         Class<?> current = type;
-        Set<Field> fields = new HashSet<>();
+        Set<Field> fields = new HashSet<Field>();
         while (!current.equals(Object.class)) {
             for (Field field : current.getDeclaredFields()) {
                 if (field.isAnnotationPresent(Inject.class)) {
@@ -275,7 +288,7 @@ public class Feather {
 
     private static Set<Method> providers(Class<?> type) {
         Class<?> current = type;
-        Set<Method> providers = new HashSet<>();
+        Set<Method> providers = new HashSet<Method>();
         while (!current.equals(Object.class)) {
             for (Method method : current.getDeclaredMethods()) {
                 if (method.isAnnotationPresent(Provides.class) && (type.equals(current) || !providerInSubClass(method, providers))) {
