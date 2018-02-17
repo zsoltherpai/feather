@@ -1,6 +1,8 @@
 package org.codejargon.feather;
 
-import javax.inject.*;
+import javax.inject.Provider;
+import javax.inject.Qualifier;
+import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
@@ -221,7 +223,7 @@ public class Feather {
             fs[i++] = new Object[]{
                     f,
                     providerType != null,
-                    Key.of(providerType != null ? providerType : f.getType(), qualifier(f.getAnnotations()))
+                    Key.of((Class<?>)(providerType != null ? providerType : f.getType()), qualifier(f.getAnnotations()))
             };
         }
         return fs;
@@ -232,7 +234,7 @@ public class Feather {
         Set<Field> fields = new HashSet<>();
         while (!current.equals(Object.class)) {
             for (Field field : current.getDeclaredFields()) {
-                if (field.isAnnotationPresent(Inject.class)) {
+                if (field.isAnnotationPresent(javax.inject.Inject.class) || field.isAnnotationPresent(org.codejargon.feather.Inject.class)) {
                     field.setAccessible(true);
                     fields.add(field);
                 }
@@ -254,7 +256,7 @@ public class Feather {
         Constructor inject = null;
         Constructor noarg = null;
         for (Constructor c : key.type.getDeclaredConstructors()) {
-            if (c.isAnnotationPresent(Inject.class)) {
+            if (c.isAnnotationPresent(javax.inject.Inject.class) || c.isAnnotationPresent(org.codejargon.feather.Inject.class)) {
                 if (inject == null) {
                     inject = c;
                 } else {
