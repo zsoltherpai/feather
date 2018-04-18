@@ -1,18 +1,38 @@
 package org.codejargon.feather;
 
-import javax.inject.*;
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import javax.inject.Inject;
+import javax.inject.Qualifier;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * 
+ * @author edwin.njeru
+ *
+ */
 public class Feather {
     private final Map<Key, Provider<?>> providers = new ConcurrentHashMap<>();
     private final Map<Key, Object> singletons = new ConcurrentHashMap<>();
-    private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
+    //private final Map<Class, Object[][]> injectFields = new ConcurrentHashMap<>(0);
 
     /**
      * Constructs Feather with configuration modules
+     * 
+     * @param modules varargs of modules classes
+     * 
+     * @return an instance of Feather
      */
     public static Feather with(Object... modules) {
         return new Feather(Arrays.asList(modules));
@@ -20,6 +40,9 @@ public class Feather {
 
     /**
      * Constructs Feather with configuration modules
+     * 
+     * @param modules {@code Iterable<?>} collection of configuration modules
+     * @return
      */
     public static Feather with(Iterable<?> modules) {
         return new Feather(modules);
@@ -73,12 +96,15 @@ public class Feather {
 
     /**
      * Injects fields to the target object
+     * 
+     * @param target Object
      */
     public void injectFields(Object target) {
-        if (!injectFields.containsKey(target.getClass())) {
+        /*if (!injectFields.containsKey(target.getClass())) {
             injectFields.put(target.getClass(), injectFields(target.getClass()));
-        }
-        for (Object[] f: injectFields.get(target.getClass())) {
+        }*/
+        //for (Object[] f: injectFields.get(target.getClass())) {
+        for (Object[] f: injectFields(target.getClass())) {
             Field field = (Field) f[0];
             Key key = (Key) f[2];
             try {
@@ -89,10 +115,11 @@ public class Feather {
         }
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private <T> Provider<T> provider(final Key<T> key, Set<Key> chain) {
         if (!providers.containsKey(key)) {
-            final Constructor constructor = constructor(key);
+            @SuppressWarnings("rawtypes")
+			final Constructor constructor = constructor(key);
             final Provider<?>[] paramProviders = paramProviders(key, constructor.getParameterTypes(), constructor.getGenericParameterTypes(), constructor.getParameterAnnotations(), chain);
             providers.put(key, singletonProvider(key, key.type.getAnnotation(Singleton.class), new Provider() {
                         @Override
@@ -109,7 +136,8 @@ public class Feather {
         return (Provider<T>) providers.get(key);
     }
 
-    private void providerMethod(final Object module, final Method m) {
+    @SuppressWarnings("unchecked")
+	private void providerMethod(final Object module, final Method m) {
         final Key key = Key.of(m.getReturnType(), qualifier(m.getAnnotations()));
         if (providers.containsKey(key)) {
             throw new FeatherException(String.format("%s has multiple providers, module %s", key.toString(), module.getClass()));
@@ -192,6 +220,10 @@ public class Feather {
         return providers;
     }
 
+    /**
+     * @return an array of  fully-constructed and injected instances fetched from an
+     * array of @param paramProviders, which are then used as parameters
+     */
     private static Object[] params(Provider<?>[] paramProviders) {
         Object[] params = new Object[paramProviders.length];
         for (int i = 0; i < paramProviders.length; ++i) {
@@ -200,7 +232,16 @@ public class Feather {
         return params;
     }
 
-    private static Set<Key> append(Set<Key> set, Key newKey) {
+    /**
+     * Appends a @{code Key} @param newKey to an existing {@code Set} @param set of
+     * keys, and returns a {@code Set} of key containing the new {@code Key}.
+     * If the {@code Set} of {@code Key} is null, a serializable immutable set containing only 
+     * the @param newKey is returned 
+     *  
+     * @return Set<Key> append {@code Key} {@code Set}
+     */
+    @SuppressWarnings("rawtypes")
+	private static Set<Key> append(Set<Key> set, Key newKey) {
         if (set != null && !set.isEmpty()) {
             Set<Key> appended = new LinkedHashSet<>(set);
             appended.add(newKey);
@@ -210,6 +251,14 @@ public class Feather {
         }
     }
 
+    /**
+     * Creates a map represented as a two-dimensional array of {@code Inject} annotated
+     * fields with their corresponding {@code Provider} types, or Parameterised types or
+     * type arguments.
+     * 
+     * @param target Class<?> target
+     * @return two-dimensional Object[][] array
+     */
     private static Object[][] injectFields(Class<?> target) {
         Set<Field> fields = fields(target);
         Object[][] fs = new Object[fields.size()][];
@@ -227,6 +276,13 @@ public class Feather {
         return fs;
     }
 
+    /**
+     * Returns accessible set of fields ({@code Field}) in a given class type
+     * which are annotated with the {@code Inject} {@code Annotation}
+     * 
+     * @param type Class<?> type
+     * @return Set<Field> fields
+     */
     private static Set<Field> fields(Class<?> type) {
         Class<?> current = type;
         Set<Field> fields = new HashSet<>();
@@ -242,7 +298,16 @@ public class Feather {
         return fields;
     }
 
-    private static String chain(Set<Key> chain, Key lastKey) {
+    /**
+     * Returns a String representing a concatenation of Keys from a {@code Set}
+     * of {@code Key} and appends the last {@code Key}
+     * 
+     * @param chain Set<Key> chain
+     * @param {@code Key} lastKey
+     * @return "->" concatenated string of {@code Key} names
+     */
+    @SuppressWarnings("rawtypes")
+	private static String chain(Set<Key> chain, Key lastKey) {
         StringBuilder chainString = new StringBuilder();
         for (Key key : chain) {
             chainString.append(key.toString()).append(" -> ");
@@ -250,7 +315,17 @@ public class Feather {
         return chainString.append(lastKey.toString()).toString();
     }
 
-    private static Constructor constructor(Key key) {
+    /**
+     * Fetches a constructor which is annotated with {@code Inject} from a {@code Key}. 
+     * If such a constructor does not exist, the noargs constructor is used instead.
+     * If both do not exist and a module provider does not also exist then a 
+     * {@code FeatherException} is thrown
+     * 
+     * @param {@code Key}
+     * @return {@code Constructor}
+     */
+    @SuppressWarnings("rawtypes")
+	private static Constructor constructor(Key key) {
         Constructor inject = null;
         Constructor noarg = null;
         for (Constructor c : key.type.getDeclaredConstructors()) {
@@ -273,6 +348,13 @@ public class Feather {
         }
     }
 
+    /**
+     * Creates a hashSet of methods from a given type which are annotated with the
+     * {@code Provides} annotation
+     * 
+     * @param type Class<?> type
+     * @return Set<Method> containing {@code Provides} annotation
+     */
     private static Set<Method> providers(Class<?> type) {
         Class<?> current = type;
         Set<Method> providers = new HashSet<>();
@@ -288,6 +370,14 @@ public class Feather {
         return providers;
     }
 
+    /**
+     * Fetches a {@code Qualifier} {@code Annotation} from an array of annotations.
+     * If a {@code Qualifier} {@code Annotation} is not found in the array, a null pointer
+     * is returned
+     * 
+     * @param annotations
+     * @return {@code Qualifier} {@code Annotation}
+     */
     private static Annotation qualifier(Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation.annotationType().isAnnotationPresent(Qualifier.class)) {
@@ -297,6 +387,14 @@ public class Feather {
         return null;
     }
 
+    /**
+     * Checks is a Provider exists in a subclass of the current class we are currently
+     * looping through
+     * 
+     * @param {@code Method}
+     * @param discoveredMethods Set<Method> of discoveredMethods
+     * @return boolean whether or not  a provider exists in a subclass
+     */
     private static boolean providerInSubClass(Method method, Set<Method> discoveredMethods) {
         for (Method discovered : discoveredMethods) {
             if (discovered.getName().equals(method.getName()) && Arrays.equals(method.getParameterTypes(), discovered.getParameterTypes())) {
