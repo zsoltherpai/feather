@@ -1,1 +1,18 @@
 language: java
+install: true
+
+script:
+- mvn verify
+- mvn compile
+- mvn test
+- mvn validate
+- mvn jar:jar
+- mvn jar:test-jar
+- mvn source:jar
+- mvn source:test-jar
+- mvn spotbugs:check
+- mvn surefire:test
+- mvn clean package
+- mvn clean install
+jdk:
+  - oraclejdk8
