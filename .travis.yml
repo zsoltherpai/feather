@@ -10,7 +10,6 @@ script:
 - mvn jar:test-jar
 - mvn source:jar
 - mvn source:test-jar
-- mvn spotbugs:check
 - mvn surefire:test
 - mvn clean package
 - mvn clean install
