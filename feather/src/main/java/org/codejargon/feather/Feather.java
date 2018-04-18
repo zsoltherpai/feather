@@ -30,7 +30,7 @@ public class Feather {
     /**
      * Constructs Feather with configuration modules
      * 
-     * @param varargs of modules classes
+     * @param modules varargs of modules classes
      * 
      * @return an instance of Feather
      */
@@ -41,7 +41,7 @@ public class Feather {
     /**
      * Constructs Feather with configuration modules
      * 
-     * @param An {@code Iterable<?>} collection of configuration modules
+     * @param modules {@code Iterable<?>} collection of configuration modules
      * @return
      */
     public static Feather with(Iterable<?> modules) {
@@ -256,7 +256,7 @@ public class Feather {
      * fields with their corresponding {@code Provider} types, or Parameterised types or
      * type arguments.
      * 
-     * @param Class<?> target
+     * @param target Class<?> target
      * @return two-dimensional Object[][] array
      */
     private static Object[][] injectFields(Class<?> target) {
@@ -280,7 +280,7 @@ public class Feather {
      * Returns accessible set of fields ({@code Field}) in a given class type
      * which are annotated with the {@code Inject} {@code Annotation}
      * 
-     * @param Class<?> type
+     * @param type Class<?> type
      * @return Set<Field> fields
      */
     private static Set<Field> fields(Class<?> type) {
@@ -302,7 +302,7 @@ public class Feather {
      * Returns a String representing a concatenation of Keys from a {@code Set}
      * of {@code Key} and appends the last {@code Key}
      * 
-     * @param Set<Key> chain
+     * @param chain Set<Key> chain
      * @param {@code Key} lastKey
      * @return "->" concatenated string of {@code Key} names
      */
@@ -352,7 +352,7 @@ public class Feather {
      * Creates a hashSet of methods from a given type which are annotated with the
      * {@code Provides} annotation
      * 
-     * @param Class<?> type
+     * @param type Class<?> type
      * @return Set<Method> containing {@code Provides} annotation
      */
     private static Set<Method> providers(Class<?> type) {
@@ -392,7 +392,7 @@ public class Feather {
      * looping through
      * 
      * @param {@code Method}
-     * @param Set<Method> of discoveredMethods
+     * @param discoveredMethods Set<Method> of discoveredMethods
      * @return boolean whether or not  a provider exists in a subclass
      */
     private static boolean providerInSubClass(Method method, Set<Method> discoveredMethods) {
