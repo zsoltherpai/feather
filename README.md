@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/ghacupha/feather.svg?branch=master)](https://travis-ci.org/ghacupha/feather)
 
 #### About Feather
 
